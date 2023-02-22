@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadarService.Client", "RadarService.Client\RadarService.Client.csproj", "{779AA9DC-46E5-427F-A181-1ED1EBEE1FA7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadarService.Entities", "RadarService.Entities\RadarService.Entities.csproj", "{DE018B75-B39D-4EB8-AA1B-9C30CBE8C1F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadarService.WebApp", "RadarService.WebApp\RadarService.WebApp.csproj", "{431E32D2-F7A8-4ECE-9AD7-02024FC50A78}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadarService.Authorization", "RadarService.Authorization\RadarService.Authorization.csproj", "{2BB3845A-4080-46C9-ABC1-DC6DA21DA6DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadarService.Data", "RadarService.Data\RadarService.Data.csproj", "{C50D9827-DF62-4BDC-A587-D5BD71C289B0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadarService.Scheduler", "RadarService.Scheduler\RadarService.Scheduler.csproj", "{2AE4D816-7C74-489B-8CE3-71025D7FF1A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{779AA9DC-46E5-427F-A181-1ED1EBEE1FA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{779AA9DC-46E5-427F-A181-1ED1EBEE1FA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{779AA9DC-46E5-427F-A181-1ED1EBEE1FA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{779AA9DC-46E5-427F-A181-1ED1EBEE1FA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE018B75-B39D-4EB8-AA1B-9C30CBE8C1F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE018B75-B39D-4EB8-AA1B-9C30CBE8C1F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE018B75-B39D-4EB8-AA1B-9C30CBE8C1F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE018B75-B39D-4EB8-AA1B-9C30CBE8C1F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{431E32D2-F7A8-4ECE-9AD7-02024FC50A78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{431E32D2-F7A8-4ECE-9AD7-02024FC50A78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{431E32D2-F7A8-4ECE-9AD7-02024FC50A78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{431E32D2-F7A8-4ECE-9AD7-02024FC50A78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BB3845A-4080-46C9-ABC1-DC6DA21DA6DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BB3845A-4080-46C9-ABC1-DC6DA21DA6DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BB3845A-4080-46C9-ABC1-DC6DA21DA6DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BB3845A-4080-46C9-ABC1-DC6DA21DA6DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C50D9827-DF62-4BDC-A587-D5BD71C289B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C50D9827-DF62-4BDC-A587-D5BD71C289B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C50D9827-DF62-4BDC-A587-D5BD71C289B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C50D9827-DF62-4BDC-A587-D5BD71C289B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AE4D816-7C74-489B-8CE3-71025D7FF1A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AE4D816-7C74-489B-8CE3-71025D7FF1A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AE4D816-7C74-489B-8CE3-71025D7FF1A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AE4D816-7C74-489B-8CE3-71025D7FF1A1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {86189411-0C44-48D0-8946-990D0D55D40F}
+	EndGlobalSection
+EndGlobal

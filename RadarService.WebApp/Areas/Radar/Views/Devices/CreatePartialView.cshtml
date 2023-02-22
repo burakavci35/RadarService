@@ -1,0 +1,30 @@
+﻿@model RadarService.WebApp.Areas.Radar.Dtos.DeviceDto
+<h1>Create</h1>
+
+<h4>Device</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="CreatePartialView" data-ajax="true" data-ajax-mode="replace" data-ajax-success="CreateOnSuccess" data-ajax-update="#modalBody">
+           @* <div asp-validation-summary="ModelOnly" class="text-danger"></div>*@
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BaseAddress" class="control-label"></label>
+                <input asp-for="BaseAddress" class="form-control" />
+                <span asp-validation-for="BaseAddress" class="text-danger"></span>
+            </div>
+           
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+

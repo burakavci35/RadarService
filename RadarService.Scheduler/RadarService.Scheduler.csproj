@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-RadarService.Scheduler-cc0402f9-38c2-429a-9839-f3016b4b2ad4</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RadarService.Data\RadarService.Data.csproj" />
+    <ProjectReference Include="..\RadarService.Entities\RadarService.Entities.csproj" />
+  </ItemGroup>
+</Project>

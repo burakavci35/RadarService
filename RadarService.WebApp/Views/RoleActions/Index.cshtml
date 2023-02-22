@@ -1,0 +1,121 @@
+﻿@using RadarService.WebApp.Dtos;
+
+@{
+    ViewData["Title"] = "Index";
+
+    var role = (RoleDto)ViewBag.Role;
+}
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h3 class="card-title">@role.Name (Role) Action List</h3>
+        <div class="card-toolbar">
+            <input type="button" value="Save Changes" class="btn btn-primary" id="SaveChanges" />
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="treegrid"></div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var source =
+        {
+            dataType: "json",
+            dataFields: [
+                { name: "RoleId", type: "string" },
+                { name: "Id", type: "string" },
+                { name: "Name", type: "string" },
+                { name: "DisplayName", type: "string" },
+                { name: "AreaName", type: "string" },
+                { name: "Actions", type: "array" },
+                { name: "location", type: "string" }
+            ],
+            hierarchy:
+            {
+                root: "Actions"
+            },
+            url: '@Url.Action("GetControllers")',
+            id: "Id"
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source, {
+            loadComplete: function () {
+            }
+        });
+        // create jqxTreeGrid.
+        $("#treegrid").jqxTreeGrid(
+            {
+                source: dataAdapter,
+                altRows: true,
+                width: '100%',
+                hierarchicalCheckboxes: true,
+                checkboxes: true,
+                ready: function () {
+                    var selectedControllerList = @Html.Raw(Json.Serialize(ViewBag.SelectedControllers));
+                    var rowDataList = $("#treegrid").jqxTreeGrid('getRows');
+                    for (var i = 0; i < rowDataList.length; i++) {
+                        // get a row.
+                        var rowData = rowDataList[i];
+
+                        if (findSelectedControllerListById(selectedControllerList, rowData.Id)) {
+                            $("#treegrid").jqxTreeGrid('checkRow', rowData.uid);
+                        }
+
+                    }
+                },
+                columns: [
+                    { text: "Name", align: "center", dataField: "Name", width: '20%' },
+                    { text: "Area Name", dataField: "AreaName", cellsAlign: "center", align: "center" }
+                ]
+            });
+    });
+    function findSelectedControllerListById(controllerList, Id) {
+        if (controllerList == null)
+            return false;
+        for (var i = 0; i < controllerList.length; i++) {
+            if (controllerList[i].Id == Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+  
+        
+    $("#SaveChanges")
+        .click(function () {
+            var roleId = '@role.Id';
+            var checkedRows = $("#treegrid").jqxTreeGrid('getCheckedRows');
+            var checkedIds = new Array();
+            for (var i = 0; i < checkedRows.length; i++) {
+                var rowData = checkedRows[i];
+                checkedIds.push(rowData.Id);
+            }
+
+            var postData = { id: roleId, selectedControllers: checkedIds }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AssignActionToRole")', //'/Management/TipBin',
+                data: postData,
+                success: function (response) {
+                    toastr.success(response);
+                },
+                error: function (response) {
+                    if (response.status === 403) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: "Error Occured!"
+                        });
+                    } else {
+                        toastr.error(response);
+                    }
+                },
+            });
+        });
+
+
+</script>
+

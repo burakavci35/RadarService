@@ -1,0 +1,59 @@
+﻿@model RadarService.WebApp.Areas.Radar.Dtos.SchedulerDto
+<h1>Create</h1>
+
+<h4>Device</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="CreatePartialView" data-ajax="true" data-ajax-mode="replace" data-ajax-success="CreateOnSuccess" data-ajax-update="#modalBody">
+            @* <div asp-validation-summary="ModelOnly" class="text-danger"></div>*@
+         @*   <div class="form-group">
+                <label asp-for="StartTime" class="control-label"></label>
+                <input asp-for="StartTime" class="form-control" asp-format="{0:HH:mm}" />
+                <span asp-validation-for="StartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndTime" class="control-label"></label>
+                <input asp-for="EndTime" class="form-control" asp-format="{0:HH:mm}"/>
+                <span asp-validation-for="EndTime" class="text-danger"></span>
+            </div>*@
+            <div class="form-group">
+                <label asp-for="DateRange" class="control-label"></label>
+                <input asp-for="DateRange" class="form-control form-control-solid" placeholder="Pick date rage" id="kt_daterangepicker_2" />
+                <span asp-validation-for="DateRange" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+
+
+
+
+
+    $(document).ready(function () {
+
+
+        $("#kt_daterangepicker_2").daterangepicker({
+            timePicker: true,
+            timePicker24Hour: true,
+            timePickerIncrement: 1,
+            timePickerSeconds: true,
+            locale: {
+                format: 'HH:mm'
+            }
+           
+        }).on('show.daterangepicker', function (ev, picker) {
+            picker.container.find(".calendar-table").hide();
+        });;
+    });
+        </script>
+
+
+
