@@ -3,7 +3,11 @@ using RadarService.Data.Repositories;
 using RadarService.Entities.Models;
 using RadarService.Scheduler;
 
-IHost host = Host.CreateDefaultBuilder(args)
+
+IHost host = Host.CreateDefaultBuilder(args).UseWindowsService(options =>
+    {
+        options.ServiceName = ".NET Radar Service";
+    })
     .ConfigureServices((hostContext, services) =>
     {
 

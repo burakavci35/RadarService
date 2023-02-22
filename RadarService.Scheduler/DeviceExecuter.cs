@@ -25,7 +25,7 @@ namespace RadarService.Scheduler
         {
             try
             {
-                _logger.LogInformation($"MethodName : {nameof(Execute)} Device : {device.Name} executing!");
+                _logger.LogInformation($"MethodName : {nameof(Execute)} Device : {device.Name} Started!");
                 HttpClientHandler clientHandler = new HttpClientHandler();
                 clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
                 var client = new HttpClient(clientHandler) { BaseAddress = new Uri(device.BaseAddress) };
@@ -58,7 +58,7 @@ namespace RadarService.Scheduler
 
         private async Task<string?> CheckDeviceStatus(HttpClient client, Device device)
         {
-            _logger.LogInformation($"MethodName : {nameof(CheckDeviceStatus)} Device : {device.Name} executing!");
+            _logger.LogInformation($"MethodName : {nameof(CheckDeviceStatus)} Device : {device.Name} Started!");
 
             var checkStatusCommand = device.DeviceCommands.FirstOrDefault(x => x.Command.Name == "CheckDeviceStatus");
 
@@ -108,7 +108,7 @@ namespace RadarService.Scheduler
         }
         private async Task SendDeviceRequest(HttpClient client, Device device)
         {
-            _logger.LogInformation($"MethodName : {nameof(CheckDeviceStatus)} Device : {device.Name} executing!");
+            _logger.LogInformation($"MethodName : {nameof(SendDeviceRequest)} Device : {device.Name} Started!");
             var context = _serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>();
             using (var deviceRepositoy = new Repository<Device>(context))
             {
@@ -140,6 +140,8 @@ namespace RadarService.Scheduler
                         }
                     }
 
+                     _logger.LogInformation($"MethodName : {nameof(SendDeviceRequest)} Device : {device.Name} Activated!");
+
                 }
 
                 if (!foundDevice.DeviceSchedulers.Any(x => x.Scheduler.StartTime.Ticks <= DateTime.Now.TimeOfDay.Ticks && DateTime.Now.TimeOfDay.Ticks <= x.Scheduler.EndTime.Ticks)
@@ -164,6 +166,7 @@ namespace RadarService.Scheduler
                             await requestRepository.SaveChanges();
                         }
                     }
+                     _logger.LogInformation($"MethodName : {nameof(SendDeviceRequest)} Device : {device.Name} Deactivated!");
                 }
 
             }

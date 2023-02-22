@@ -11,6 +11,7 @@ using RadarService.Entities.Models;
 using RadarService.WebApp.Areas.Radar.Dtos;
 
 using RadarService.Data.Repositories;
+using AutoMapper.QueryableExtensions;
 
 namespace RadarService.WebApp.Areas.Radar.Controllers
 {
@@ -55,7 +56,7 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
         public IActionResult CreatePartialView()
         {
             ViewData["DeviceId"] = new SelectList(_deviceRepository.GetAll(), "Id", "Name");
-            ViewData["SchedulerId"] = new SelectList(_schedulerRepository.GetAll(), "Id", "Name");
+            ViewData["SchedulerId"] = new SelectList(_schedulerRepository.GetAll().ProjectTo<SchedulerDto>(_mapper.ConfigurationProvider), "Id", "Name");
 
             return PartialView(new DeviceSchedulerDto());
         }
