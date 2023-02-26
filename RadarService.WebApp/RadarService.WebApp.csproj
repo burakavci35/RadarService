@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Views\RoleUsers\ommfbcfi.ek3~" />
+    <None Remove="Areas\Authorization\Views\RoleUsers\ommfbcfi.ek3~" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,8 +16,12 @@
     <PackageReference Include="jQuery.Validation" Version="1.19.5" />
     <PackageReference Include="jQWidgets.AspNetCore.Mvc.TagHelpers" Version="2.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.2">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -33,12 +37,10 @@
 
   <ItemGroup>
     <Folder Include="AppData\" />
+    <Folder Include="Areas\Authorization\Data\" />
+    <Folder Include="Areas\Authorization\Models\" />
     <Folder Include="Areas\Radar\Data\" />
     <Folder Include="Areas\Radar\Models\" />
-    <Folder Include="Areas\test\Controllers\" />
-    <Folder Include="Areas\test\Data\" />
-    <Folder Include="Areas\test\Models\" />
-    <Folder Include="Areas\test\Views\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,7 +64,7 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Update="Views\Role\Index.cshtml">
+    <Content Update="Areas\Authorization\Views\Role\Index.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
@@ -79,12 +81,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="Views\Role\CreatePartialView.cshtml" />
+    <UpToDateCheckInput Remove="Areas\Authorization\Views\Role\CreatePartialView.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Areas\Radar\Views\Devices\CreatePartialView.cshtml" />
-    <_ContentIncludedByDefault Remove="Views\Role\CreatePartialView.cshtml" />
+    <_ContentIncludedByDefault Remove="Areas\Authorization\Views\Role\CreatePartialView.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

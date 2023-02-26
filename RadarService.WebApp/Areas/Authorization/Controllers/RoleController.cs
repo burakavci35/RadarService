@@ -5,10 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using RadarService.Authorization.Dtos;
 using RadarService.Authorization.Models;
 using RadarService.Authorization.Services;
-using RadarService.WebApp.Dtos;
+using RadarService.WebApp.Areas.Authorization.Dtos;
 
-namespace RadarService.WebApp.Controllers
+namespace RadarService.WebApp.Areas.Authorization.Controllers
 {
+    [Area("Authorization")]
     public class RoleController : Controller
     {
         private readonly IRoleService _roleService;

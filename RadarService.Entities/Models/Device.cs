@@ -15,7 +15,11 @@ public partial class Device
 
     public bool IsActive { get; set; }
 
+    public DateTime? LastUpdateDateTime { get; set; }
+
     public virtual ICollection<DeviceCommand> DeviceCommands { get; } = new List<DeviceCommand>();
+
+    public virtual ICollection<DeviceLog> DeviceLogs { get; } = new List<DeviceLog>();
 
     public virtual ICollection<DeviceScheduler> DeviceSchedulers { get; } = new List<DeviceScheduler>();
 }

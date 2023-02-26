@@ -83,6 +83,21 @@ namespace RadarService.Authorization.Services
             return new LoginResult() { IsSuccess = false, Message = "Login Failed Unknown Result" };
         }
 
+         public async Task<LoginResult> ChangePassword(ChangePasswordDto changePasswordDto)
+        {
+            var foundUser = await _userManager.FindByNameAsync(changePasswordDto.EmployeeNumber);
+
+            if (foundUser == null) return new LoginResult() { IsSuccess = false, Message = "User Not Found!" };
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(foundUser);
+
+            var result = await _userManager.ResetPasswordAsync(foundUser, token,changePasswordDto.Password);
+
+            if (!result.Succeeded) return new LoginResult() { IsSuccess = false, Message = "Login Failed Unknown Result" };
+            
+            return new LoginResult() { IsSuccess = true, Message = $"User : {foundUser.EmployeeNumber} Password Changed Successfully!" };
+        }
+
         public async Task Logout()
         {
             await _signInManager.SignOutAsync();

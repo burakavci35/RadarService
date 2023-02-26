@@ -1,18 +1,29 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
-using Quartz;
+
 using RadarService.Authorization.Helpers;
 using RadarService.Authorization.Models;
 using RadarService.Authorization.Services;
 using RadarService.Data.Repositories;
 using RadarService.Entities.Models;
 using RadarService.WebApp.Filters;
-using RadarService.WebApp.Jobs;
+using RadarService.WebApp.Resources;
+using RadarService.WebApp.ViewComponents;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews(options => options.Filters.Add(typeof(DynamicAuthorization))).AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = null).AddViewLocalization().AddDataAnnotationsLocalization();
+builder.Services.AddControllersWithViews(options => options.Filters.Add(typeof(DynamicAuthorization)))
+    .AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = null).AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization(
+                    o => { o.DataAnnotationLocalizerProvider = (type, factory) => factory.Create(typeof(ResourceTexts)); }
+                );
+
+var supportedCultures = new[] { "en", "tr" };
+var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(supportedCultures[1])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
              options.UseSqlServer(builder.Configuration.GetConnectionString(nameof(ApplicationDbContext))));
@@ -31,6 +42,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/User/AccessDenied";
 });
 
+builder.Services.AddScoped<DynamicAuthorizationService>();
+
 builder.Services.AddScoped<DbContext, RadarDbContext>();
 builder.Services.AddScoped<IRepository<Device>, Repository<Device>>();
 builder.Services.AddScoped<IRepository<Command>, Repository<Command>>();
@@ -42,10 +55,18 @@ builder.Services.AddScoped<IRepository<Scheduler>, Repository<Scheduler>>();
 builder.Services.AddScoped<IRepository<DeviceScheduler>, Repository<DeviceScheduler>>();
 builder.Services.AddScoped<IRepository<DeviceCommand>, Repository<DeviceCommand>>();
 
+
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
 builder.Services.AddSingleton<IMvcControllerDiscovery, MvcControllerDiscovery>();
+
+builder.Services.AddLocalization(options =>
+           {
+               // Resource (kaynak) dosyalarýmýzý ana dizin altýnda "Resources" klasorü içerisinde tutacaðýmýzý belirtiyoruz.
+               options.ResourcesPath = "Resources";
+           });
 
 
 var app = builder.Build();
@@ -66,7 +87,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
-
+app.UseRequestLocalization(localizationOptions);
 
 
 app.UseEndpoints(endpoints =>

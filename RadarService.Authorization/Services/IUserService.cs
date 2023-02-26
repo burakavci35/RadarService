@@ -12,6 +12,7 @@ namespace RadarService.Authorization.Services
     public interface IUserService
     {
         public Task<LoginResult> Login(LoginDto loginDto);
+        public Task<LoginResult> ChangePassword(ChangePasswordDto changePasswordDto);
         public Task Logout();
         public Task<LoginResult> Register(RegisterDto user);
         public Task CreateAsync(ApplicationUser user);

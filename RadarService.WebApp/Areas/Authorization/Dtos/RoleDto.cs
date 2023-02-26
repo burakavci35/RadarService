@@ -2,7 +2,7 @@
 using RadarService.WebApp.Resources;
 using System.ComponentModel.DataAnnotations;
 
-namespace RadarService.WebApp.Dtos
+namespace RadarService.WebApp.Areas.Authorization.Dtos
 {
     public class RoleDto
     {

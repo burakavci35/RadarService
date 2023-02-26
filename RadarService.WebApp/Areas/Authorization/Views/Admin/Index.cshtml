@@ -6,15 +6,14 @@
     <div class="card-header">
         <h3 class="card-title">User List</h3>
         <div class="card-toolbar">
-          
         </div>
     </div>
     <div class="card-body">
         <div id="jqxgrid"></div>
     </div>
-  
+
 </div>
-             
+
 
 
 <div class="modal fade" id="myModal" role="dialog">
@@ -50,7 +49,7 @@
                 { name: 'Id', type: 'string' },
                 { name: 'EmployeeNumber', type: 'int' },
                 { name: 'FirstName', type: 'string' },
-                { name: 'LastName', type: 'int' },
+                { name: 'LastName', type: 'string' },
 
             ],
             id: 'Id',
@@ -96,11 +95,11 @@
                             }
 
                         });
-                    }else{
+                    } else {
                         commit(false);
                     }
                 })
-               
+
             }
         };
         var dataAdapter = new $.jqx.dataAdapter(source);
@@ -159,6 +158,23 @@
                     { text: 'Employee Number', datafield: 'EmployeeNumber' },
                     { text: 'First Name', datafield: 'FirstName' },
                     { text: 'Last Name', datafield: 'LastName' },
+                    {
+                        text: 'ChangePassword', datafield: 'ChangePassword', columntype: 'button', cellsrenderer: function () {
+                            return "ChangePassword";
+                        }, buttonclick: function (row) {
+
+                            var rowid = $('#jqxgrid').jqxGrid('getrowid', row);
+
+                            $.get("@Url.Action("ChangePasswordPartialView")", { id: rowid },
+                                function (data) {
+                                    $('.modal-body').html(data);
+                                    jQuery.validator.unobtrusive.parse('.modal-body')
+                                    $("#myModal").modal("show");
+                                });
+
+
+                        }
+                    },
                     {
                         text: 'Delete', datafield: 'Delete', columntype: 'button', cellsrenderer: function () {
                             return "Delete";

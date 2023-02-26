@@ -21,6 +21,8 @@ public partial class RadarDbContext : DbContext
 
     public virtual DbSet<DeviceCommand> DeviceCommands { get; set; }
 
+    public virtual DbSet<DeviceLog> DeviceLogs { get; set; }
+
     public virtual DbSet<DeviceScheduler> DeviceSchedulers { get; set; }
 
     public virtual DbSet<FormParameter> FormParameters { get; set; }
@@ -35,14 +37,7 @@ public partial class RadarDbContext : DbContext
 
     public virtual DbSet<StepRequest> StepRequests { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=localhost\\SQLExpress;Database=RadarDB;Trusted_Connection=True;TrustServerCertificate=True;");
-    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-    //        => optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=RadarDB;Trusted_Connection=True;MultipleActiveResultSets=true");
-
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Command>(entity =>
@@ -57,6 +52,7 @@ public partial class RadarDbContext : DbContext
             entity.ToTable("Device");
 
             entity.Property(e => e.BaseAddress).HasMaxLength(50);
+            entity.Property(e => e.LastUpdateDateTime).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Status).HasMaxLength(50);
         });
@@ -74,6 +70,20 @@ public partial class RadarDbContext : DbContext
                 .HasForeignKey(d => d.DeviceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DeviceCommand_Device");
+        });
+
+        modelBuilder.Entity<DeviceLog>(entity =>
+        {
+            entity.ToTable("DeviceLog");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.LogDateTime).HasColumnType("datetime");
+            entity.Property(e => e.Type).HasMaxLength(50);
+
+            entity.HasOne(d => d.Device).WithMany(p => p.DeviceLogs)
+                .HasForeignKey(d => d.DeviceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DeviceLog_Device");
         });
 
         modelBuilder.Entity<DeviceScheduler>(entity =>
@@ -120,7 +130,7 @@ public partial class RadarDbContext : DbContext
         {
             entity.ToTable("ResponseCondition");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CommandName).HasMaxLength(100);
             entity.Property(e => e.Condition).HasMaxLength(100);
             entity.Property(e => e.Result).HasMaxLength(100);
 

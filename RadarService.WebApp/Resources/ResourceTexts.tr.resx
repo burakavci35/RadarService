@@ -117,14 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AlreadyHaveAccount" xml:space="preserve">
+    <value>Hesabınız var mı?</value>
+  </data>
+  <data name="Authentication" xml:space="preserve">
+    <value>Yetkilendirme</value>
+  </data>
   <data name="BirthDate" xml:space="preserve">
     <value>Doğum Tarihi</value>
   </data>
   <data name="ConfirmPassword" xml:space="preserve">
     <value>Şifre Onayla</value>
   </data>
+  <data name="CreateAnAccount" xml:space="preserve">
+    <value>Hesap Oluştur</value>
+  </data>
   <data name="Description" xml:space="preserve">
     <value>Açıklama</value>
+  </data>
+  <data name="EmployeeNumber" xml:space="preserve">
+    <value>Sicil No</value>
   </data>
   <data name="FirstName" xml:space="preserve">
     <value>İsim</value>
@@ -138,13 +150,43 @@
   <data name="LastName" xml:space="preserve">
     <value>Soyisim</value>
   </data>
+  <data name="Login" xml:space="preserve">
+    <value>Giriş Yap</value>
+  </data>
+  <data name="LoginHere" xml:space="preserve">
+    <value>Burdan giriş yapın</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Çıkış Yap</value>
+  </data>
   <data name="Name" xml:space="preserve">
-    <value>Adı</value>
+    <value>İsim</value>
   </data>
   <data name="Password" xml:space="preserve">
     <value>Şifre</value>
   </data>
+  <data name="Radar" xml:space="preserve">
+    <value>Radar</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Kayıt Ol</value>
+  </data>
   <data name="RememberMe" xml:space="preserve">
     <value>Beni Hatırla</value>
+  </data>
+  <data name="RoleActions" xml:space="preserve">
+    <value>Role Aksiyonları</value>
+  </data>
+  <data name="RoleList" xml:space="preserve">
+    <value>Rol Listesi</value>
+  </data>
+  <data name="RoleUsers" xml:space="preserve">
+    <value>Rol Kullanıcıları</value>
+  </data>
+  <data name="UserList" xml:space="preserve">
+    <value>Kullanıcı Listesi</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Hoşgeldiniz</value>
   </data>
 </root>

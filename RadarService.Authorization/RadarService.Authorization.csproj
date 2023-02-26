@@ -19,19 +19,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Resources\Validation.Designer.cs">
+    <Compile Update="Resources\ResourceTexts.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>Validation.resx</DependentUpon>
+      <DependentUpon>ResourceTexts.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Resources\Validation.resx">
+    <EmbeddedResource Update="Resources\ResourceTexts.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Validation.Designer.cs</LastGenOutput>
+      <LastGenOutput>ResourceTexts.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="Resources\Validation.tr.resx">
+    <EmbeddedResource Update="Resources\ResourceTexts.tr.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
   </ItemGroup>

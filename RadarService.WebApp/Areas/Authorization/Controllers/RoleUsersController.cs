@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RadarService.Authorization.Models;
 using RadarService.Authorization.Services;
-using RadarService.WebApp.Dtos;
+using RadarService.WebApp.Areas.Authorization.Dtos;
 
-namespace RadarService.WebApp.Controllers
+namespace RadarService.WebApp.Areas.Authorization.Controllers
 {
+    [Area("Authorization")]
     public class RoleUsersController : Controller
     {
         private readonly IUserService _userService;
@@ -33,7 +34,7 @@ namespace RadarService.WebApp.Controllers
 
         public async Task<IActionResult> GetList(string roleId)
         {
-            return Json(_mapper.Map<List<UserRoleDto>>(await _userRoleService.GetList().Where(x=>x.RoleId == roleId).ToListAsync()));
+            return Json(_mapper.Map<List<UserRoleDto>>(await _userRoleService.GetList().Where(x => x.RoleId == roleId).ToListAsync()));
         }
 
         public async Task<IActionResult> GetUserList()
@@ -52,17 +53,17 @@ namespace RadarService.WebApp.Controllers
 
         public async Task<IActionResult> CreatePartialView(string id)
         {
-            var existingUsers = await _userRoleService.GetList().Where(x=>x.RoleId == id).Select(x=>x.UserId).ToListAsync();
-            ViewData["UserId"] = new SelectList(_userService.GetAll().Where(x=>!existingUsers.Contains(x.Id)).Select(x=>new { x.Id,Name=$"{x.FirstName} {x.LastName} ({x.EmployeeNumber})" }), "Id", "Name");
-            ViewData["RoleId"] = new SelectList(_roleService.GetList(),"Id","Name");
-            return PartialView(new UserRoleDto(){RoleId = id});
+            var existingUsers = await _userRoleService.GetList().Where(x => x.RoleId == id).Select(x => x.UserId).ToListAsync();
+            ViewData["UserId"] = new SelectList(_userService.GetAll().Where(x => !existingUsers.Contains(x.Id)).Select(x => new { x.Id, Name = $"{x.FirstName} {x.LastName} ({x.EmployeeNumber})" }), "Id", "Name");
+            ViewData["RoleId"] = new SelectList(_roleService.GetList(), "Id", "Name");
+            return PartialView(new UserRoleDto() { RoleId = id });
         }
         [HttpPost]
         public async Task<JsonResult> CreatePartialView(UserRoleDto entityDto)
         {
             if (ModelState.IsValid)
             {
-            
+
                 await _userRoleService.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityUserRole<string>()
                 {
                     UserId = entityDto.UserId,

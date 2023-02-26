@@ -12,7 +12,8 @@ public partial class ResponseCondition
     public string Condition { get; set; } = null!;
 
     public string Result { get; set; } = null!;
-    public string CommandName { get; set; } = null;
-    public virtual Request Request { get; set; } = null!;
 
+    public string CommandName { get; set; } = null!;
+
+    public virtual Request Request { get; set; } = null!;
 }

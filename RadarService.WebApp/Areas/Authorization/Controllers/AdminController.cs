@@ -8,8 +8,9 @@ using RadarService.Authorization.Models;
 using RadarService.Authorization.Services;
 using RadarService.WebApp.Dtos;
 
-namespace RadarService.WebApp.Controllers
+namespace RadarService.WebApp.Areas.Authorization.Controllers
 {
+    [Area("Authorization")]
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -40,13 +41,26 @@ namespace RadarService.WebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                //return Json();
+              
                 var result = await _userService.Register(entityDto);
                 return Json(new { Success = result.IsSuccess, result.Message });
             }
             return Json(new { Success = false, Message = string.Join("\n", ModelState.Values.SelectMany(x => x.Errors)) });
         }
-      
+
+        public async Task<IActionResult> ChangePasswordPartialViewAsync(string id) => PartialView(new ChangePasswordDto { EmployeeNumber = (await _userService.GetByIdAsync(id)).EmployeeNumber });
+        [HttpPost]
+        public async Task<JsonResult> ChangePasswordPartialView(ChangePasswordDto entityDto)
+        {
+            if (ModelState.IsValid)
+            {
+             
+                var result = await _userService.ChangePassword(entityDto);
+                return Json(new { Success = result.IsSuccess, result.Message });
+            }
+            return Json(new { Success = false, Message = string.Join("\n", ModelState.Values.SelectMany(x => x.Errors)) });
+        }
+
         [HttpPost]
         public async Task<IActionResult> Edit(string id, UserDto entityDto)
         {
@@ -82,7 +96,7 @@ namespace RadarService.WebApp.Controllers
             }
             catch (Exception ex)
             {
-                 return Json(new { Success = false, ex.Message });
+                return Json(new { Success = false, ex.Message });
             }
 
         }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using RadarService.Authorization.Models;
 using RadarService.Entities.Models;
+using RadarService.WebApp.Areas.Authorization.Dtos;
 using RadarService.WebApp.Areas.Radar.Dtos;
 using RadarService.WebApp.Dtos;
 using System;

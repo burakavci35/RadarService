@@ -5,10 +5,11 @@ using Newtonsoft.Json;
 using RadarService.Authorization.Dtos;
 using RadarService.Authorization.Helpers;
 using RadarService.Authorization.Services;
-using RadarService.WebApp.Dtos;
+using RadarService.WebApp.Areas.Authorization.Dtos;
 
-namespace RadarService.WebApp.Controllers
+namespace RadarService.WebApp.Areas.Authorization.Controllers
 {
+    [Area("Authorization")]
     public class RoleActionsController : Controller
     {
         private readonly IRoleService _roleService;
@@ -57,7 +58,7 @@ namespace RadarService.WebApp.Controllers
 
                 await _roleService.UpdateAsync(foundRole);
 
-               return Ok("Role Actions Updated Successfully...");
+                return Ok("Role Actions Updated Successfully...");
             }
 
             return NotFound();
