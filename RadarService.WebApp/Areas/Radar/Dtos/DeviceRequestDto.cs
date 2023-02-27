@@ -8,7 +8,7 @@
 
         public int RequestId { get; set; }
 
-        public CommandDto? Command { get; set; }
+        public RequestDto? Request { get; set; }
 
         public DeviceDto? Device { get; set; }
     }
