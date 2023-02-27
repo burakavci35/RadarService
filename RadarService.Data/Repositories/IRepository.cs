@@ -10,7 +10,7 @@ namespace RadarService.Data.Repositories
     public interface IRepository<TEntity> where TEntity : class 
     {
 
-        Task<TEntity> GetByIdAsync(int id);
+        Task<TEntity> GetByIdAsync(params object?[]? keyValues);
         IQueryable<TEntity> GetAll();
         IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> expression);
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> expression);

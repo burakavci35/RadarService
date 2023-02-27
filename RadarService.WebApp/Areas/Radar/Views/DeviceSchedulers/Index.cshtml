@@ -71,6 +71,7 @@
         {
             datatype: "json",
             datafields: [
+                { name: 'Id', type: 'int' },
                 { name: 'Device', value: 'DeviceId', values: { source: deviceDataSource.records, value: 'Value', name: 'Text' } },
                 { name: 'DeviceId', type: 'string' },
                 { name: 'Scheduler', value: 'SchedulerId', values: { source: schedulerDataSource.records, value: 'Value', name: 'Text' } },
@@ -79,6 +80,24 @@
             ],
             id: 'Id',
             url: '@Url.Action("GetList")',
+            updaterow: function (rowid, newdata, commit) {
+                $.post('@Url.Action("Edit")', { id: rowid, entityDto: newdata }, function (data) {
+                    if (data.Success) {
+                        commit(true);
+                    } else {
+                        commit(false);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.Message,
+
+                        });
+                    }
+
+                });
+
+                commit(true);
+            },
             deleterow: function (rowid, commit) {
                 var rowdata = $('#jqxgrid').jqxGrid('getrowdatabyid', rowid);
                 Swal.fire({
@@ -88,7 +107,7 @@
                 }).then((result) => {
                     /* Read more about isConfirmed, isDenied below */
                     if (result.isConfirmed) {
-                        $.post('@Url.Action("DeleteConfirmed")', {id: rowdata.Id }, function (data) {
+                        $.post('@Url.Action("DeleteConfirmed")', { id: rowdata.Id }, function (data) {
                             if (data.Success) {
                                 commit(true);
                             } else {

@@ -18,7 +18,7 @@ namespace RadarService.Scheduler
         private readonly IConfiguration _configuration;
         private IUnitOfwork _unitOfWork;
         private readonly IServiceProvider _serviceProvider;
-        private static string MockDeviceResult = "Passive";
+        private static Dictionary<int, string> MockDevices = new Dictionary<int, string>() { { 1, "Passive" }, { 2, "Passive" } };
 
         public DeviceWorker(ILogger<DeviceWorker> logger, IConfiguration configuration, IServiceProvider serviceProvider)
         {
@@ -31,6 +31,7 @@ namespace RadarService.Scheduler
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+
                 _unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>());
                 var activeDevices = _unitOfWork.Device.GetAll().Where(x => x.IsActive).Include(x => x.DeviceSchedulers).ThenInclude(x => x.Scheduler).ToList();
                 foreach (var device in activeDevices)
@@ -50,11 +51,20 @@ namespace RadarService.Scheduler
                 HttpClientHandler clientHandler = new HttpClientHandler();
                 clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
                 var client = new HttpClient(clientHandler) { BaseAddress = new Uri(device.BaseAddress) };
+
+                if (!await LoginDevice(client, device, "Login"))
+                {
+                    _logger.LogError($"Method : {nameof(ExecuteDevice)} Device Name {device.Name} Login Error!");
+                    await LogoutDevice(client, device, "Logout");
+                    return;
+                }
+
                 var resultStatus = await CheckDeviceStatus(client, device, "CheckDeviceStatus");
                 using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
                 {
                     var foundDevice = await _unitOfWork.Device.GetByIdAsync(device.Id);
-                    foundDevice.Status = resultStatus;
+                    foundDevice.Status = resultStatus ?? "Unknown";
+                    foundDevice.LastUpdateDateTime = DateTime.Now;
                     unitOfWork.Device.Update(foundDevice);
                     await unitOfWork.SaveChangesAsync();
                 }
@@ -62,18 +72,43 @@ namespace RadarService.Scheduler
                 if (device.DeviceSchedulers.Any(x => x.Scheduler.StartTime.Ticks <= DateTime.Now.TimeOfDay.Ticks && DateTime.Now.TimeOfDay.Ticks <= x.Scheduler.EndTime.Ticks)
                        && resultStatus == "Passive")
                 {
-                    await SendDeviceRequest(client, device, "OpenDevice");
-                     _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Activated!");
+                    await SendDeviceRequest(client, device, "Open");
+                    _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Activated!");
+                    using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
+                    {
+                        await unitOfWork.DeviceLog.AddAsync(new DeviceLog()
+                        {
+                            DeviceId = device.Id,
+                            LogDateTime = DateTime.Now,
+                            Type = "Information",
+                            Message = $"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Activated!"
+                        });
+                        await unitOfWork.SaveChangesAsync();
+                    }
+
 
                 }
                 if (!device.DeviceSchedulers.Any(x => x.Scheduler.StartTime.Ticks <= DateTime.Now.TimeOfDay.Ticks && DateTime.Now.TimeOfDay.Ticks <= x.Scheduler.EndTime.Ticks)
                   && device.Status == "Active")
                 {
-                    await SendDeviceRequest(client, device, "CloseDevice");
-                     _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Deactivated!");
-                }
+                    await SendDeviceRequest(client, device, "Close");
+                    _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Deactivated!");
 
-                 _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Completed!");
+                    using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
+                    {
+                        await unitOfWork.DeviceLog.AddAsync(new DeviceLog()
+                        {
+                            DeviceId = device.Id,
+                            LogDateTime = DateTime.Now,
+                            Type = "Information",
+                            Message = $"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Deactivated!"
+                        });
+                        await unitOfWork.SaveChangesAsync();
+                    }
+                }
+                await LogoutDevice(client, device, "Logout");
+
+                _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Completed!");
             }
             catch (Exception ex)
             {
@@ -81,63 +116,72 @@ namespace RadarService.Scheduler
 
             }
 
-
         }
 
-        private async Task<string> CheckDeviceStatus(HttpClient client, Device device, string checkDeviceStatusCommand)
+        private async Task<bool> LoginDevice(HttpClient client, Device device, string loginRequestName)
         {
-            var foundCommand = await _unitOfWork.DeviceCommand.GetAll()
-                .Include(x => x.Command).ThenInclude(x => x.StepRequests).ThenInclude(x => x.Request).ThenInclude(x => x.FormParameters)
-                .Include(x => x.Command).ThenInclude(x => x.StepRequests).ThenInclude(x => x.Request).ThenInclude(x => x.ResponseConditions)
-                .Include(x => x.Command).ThenInclude(x => x.StepRequests).ThenInclude(x => x.Step)
-                .Where(x => x.DeviceId == device.Id)
-                .FirstOrDefaultAsync(x => x.Command.Name.Equals(checkDeviceStatusCommand));
-
-            if (foundCommand == null)
-            {
-                _logger.LogError($"Method : {nameof(CheckDeviceStatus)} Error : Command Name {checkDeviceStatusCommand} Not Found Error!");
-                return null;
-            }
-
-            var result = string.Empty;
-
-            foreach (var stepRequest in foundCommand.Command.StepRequests)
-            {
-                if (stepRequest.Step.Name.Equals("CheckStatus"))
-                {
-                    var expectedResponse = await ExecuteStep(client, stepRequest.Request);
-
-                    var foundResponseCondition = stepRequest.Request.ResponseConditions.FirstOrDefault(x => expectedResponse.Contains(x.Condition));
-
-                    result = foundResponseCondition?.Result;
-                }
-                else
-                {
-                    await ExecuteStep(client, stepRequest.Request);
-                }
-            }
-
-            return result;
-        }
-
-
-        private async Task SendDeviceRequest(HttpClient client, Device device, string commandName)
-        {
-            var foundCommand = await _unitOfWork.DeviceCommand.GetAll().Include(x => x.Command).ThenInclude(x => x.StepRequests).ThenInclude(x => x.Request).Include(x => x.Command).ThenInclude(x => x.StepRequests).ThenInclude(x => x.Step)
+            var foundDeviceRequest = await _unitOfWork.DeviceRequest.GetAll()
+                .Include(x => x.Device).Include(x => x.Request).ThenInclude(x => x.FormParameters)
                .Where(x => x.DeviceId == device.Id)
-               .FirstOrDefaultAsync(x => x.Command.Name.Equals(commandName));
+               .FirstOrDefaultAsync(x => x.Request.Name.Equals(loginRequestName));
 
-            if (foundCommand == null)
+            if (foundDeviceRequest == null) throw new Exception($"Method : {nameof(LoginDevice)} Error : Name {loginRequestName} Not Found Error!");
+
+            var expectedResult = await ExecuteStep(client, foundDeviceRequest.Request);
+
+            if (expectedResult == null) throw new Exception($"Method : {nameof(LoginDevice)} Error :  Name {loginRequestName} Not Found Error!");
+
+            return expectedResult.Contains(foundDeviceRequest.Request.Response);
+        }
+
+        private async Task LogoutDevice(HttpClient client, Device device, string logoutRequestName)
+        {
+            var foundDeviceRequest = await _unitOfWork.DeviceRequest.GetAll()
+                .Include(x => x.Device).Include(x => x.Request).ThenInclude(x => x.FormParameters)
+               .Where(x => x.DeviceId == device.Id)
+               .FirstOrDefaultAsync(x => x.Request.Name.Equals(logoutRequestName));
+
+            if (foundDeviceRequest == null) throw new Exception($"Method : {nameof(LogoutDevice)} Error : Name {logoutRequestName} Not Found Error!");
+
+            await ExecuteStep(client, foundDeviceRequest.Request);
+        }
+
+
+        private async Task<string> CheckDeviceStatus(HttpClient client, Device device, string checkDeviceStatusName)
+        {
+            var foundDeviceRequest = await _unitOfWork.DeviceRequest.GetAll()
+                .Include(x => x.Request).ThenInclude(x => x.ResponseConditions)
+                .Where(x => x.DeviceId == device.Id)
+                .FirstOrDefaultAsync(x => x.Request.Name.Equals(checkDeviceStatusName));
+
+            if (foundDeviceRequest == null)
             {
-                _logger.LogError($"Method : {nameof(SendDeviceRequest)} Error : Command Name {commandName} Not Found Error!");
-                return;
+                throw new Exception($"Method : {nameof(CheckDeviceStatus)} Error : Name {checkDeviceStatusName} Not Found Error!");
             }
 
-            foreach (var stepRequest in foundCommand.Command.StepRequests)
+            var expectedResponse = await ExecuteStep(client, foundDeviceRequest.Request);
+
+            var foundResponseCondition = foundDeviceRequest.Request.ResponseConditions.FirstOrDefault(x => expectedResponse.Contains(x.Condition));
+
+            if (foundResponseCondition == null) return "Unknown";
+
+            return foundResponseCondition.Result;
+        }
+
+
+        private async Task SendDeviceRequest(HttpClient client, Device device, string requestName)
+        {
+            var foundDeviceRequest = await _unitOfWork.DeviceRequest.GetAll()
+                 .Include(x => x.Request).ThenInclude(x => x.ResponseConditions)
+                 .Where(x => x.DeviceId == device.Id)
+                 .FirstOrDefaultAsync(x => x.Request.Name.Equals(requestName));
+
+            if (foundDeviceRequest == null)
             {
-                await ExecuteStep(client, stepRequest.Request);
+                throw new Exception($"Method : {nameof(SendDeviceRequest)} Error : Name {requestName} Not Found Error!");
             }
 
+            await ExecuteStep(client, foundDeviceRequest.Request);
 
         }
 
@@ -158,13 +202,15 @@ namespace RadarService.Scheduler
         //            }
         //            var response = await result.Content.ReadAsStringAsync();
         //            _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
+
+
         //            return response;
 
         //        }
         //        else
         //        {
 
-        //            var result = await client.GetAsync(request.Url);
+        //            var result = request.Url == "/" ? await client.GetAsync($"/getSystemStatus?_={DateTimeOffset.Now.ToUnixTimeSeconds()}") : await client.GetAsync(request.Url);
         //            _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
         //            if (!result.IsSuccessStatusCode)
         //            {
@@ -193,16 +239,30 @@ namespace RadarService.Scheduler
                 if (request.Type == "POST")
                 {
 
-                    return MockDeviceResult;
+                    return "";
                 }
                 else
                 {
-                    if (request.Url.Equals("/system/enforcement/1"))
-                        MockDeviceResult = "Active";
-                    if (request.Url.Equals("/system/enforcement/0"))
-                        MockDeviceResult = "Passive";
+                    if (client.BaseAddress.ToString().Contains(".68"))
+                    {
+                        if (request.Url.Equals("/system/enforcement/1"))
+                            MockDevices[1] = "Active";
+                        if (request.Url.Equals("/system/enforcement/0"))
+                            MockDevices[1] = "Passive";
 
-                    return MockDeviceResult;
+                        return MockDevices[1];
+                    }
+                    if (client.BaseAddress.ToString().Contains(".69"))
+                    {
+                        if (request.Url.Equals("/system/enforcement/1"))
+                            MockDevices[2] = "Active";
+                        if (request.Url.Equals("/system/enforcement/0"))
+                            MockDevices[2] = "Passive";
+
+                        return MockDevices[2];
+                    }
+
+                    return "Unknown";
                 }
             }
             catch (Exception ex)

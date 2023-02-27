@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RadarService.Authorization.Dtos;
 using RadarService.Authorization.Models;
 using RadarService.Authorization.Services;
@@ -45,6 +46,7 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
         [HttpPost]
         public async Task<JsonResult> CreatePartialView(DeviceDto entityDto)
         {
+              ModelState.Remove($"{nameof(entityDto)}.{nameof(entityDto.LastUpdateDateTime)}");
             if (ModelState.IsValid)
             {
                 //return Json();
@@ -60,6 +62,8 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, DeviceDto entityDto)
         {
+           
+            ModelState.Remove($"{nameof(entityDto)}.{nameof(entityDto.LastUpdateDateTime)}");
             if (ModelState.IsValid)
             {
                 var foundEntity = await _deviceRepository.GetByIdAsync(id);

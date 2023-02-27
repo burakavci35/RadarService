@@ -2,6 +2,7 @@
 @using RadarService.Authorization.Models;
 @using RadarService.WebApp
 @using RadarService.WebApp.Helper;
+@using RadarService.WebApp.Resources;
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @{
@@ -114,12 +115,12 @@
                                         </span>
                                         <!--end::Svg Icon-->
                                     </span>
-                                    <span class="menu-title">Devices</span>
+                                    <span class="menu-title">@ResourceTexts.Devices</span>
                                 </a>
                             </div>
 
                             <div class="menu-item">
-                                <a class="menu-link" href="@Url.Action("Index","Schedulers")">
+                                <a class="menu-link @Html.ActiveClass("Index","Schedulers")" href="@Url.Action("Index","Schedulers")">
                                     <span class="menu-icon">
                                         <span class="svg-icon svg-icon-primary svg-icon-2x">
                                             <!--begin::Svg Icon | path:/var/www/preview.keenthemes.com/metronic/releases/2021-05-14-112058/theme/html/demo8/dist/../src/media/svg/icons/Home/Timer.svg-->
@@ -134,11 +135,11 @@
                                             </svg><!--end::Svg Icon-->
                                         </span>
                                     </span>
-                                    <span class="menu-title">Schedulers</span>
+                                    <span class="menu-title">@ResourceTexts.Schedulers</span>
                                 </a>
                             </div>
                             <div class="menu-item">
-                                <a class="menu-link" href="@Url.Action("Index","DeviceSchedulers")">
+                                <a class="menu-link @Html.ActiveClass("Index","DeviceSchedulers")" href="@Url.Action("Index","DeviceSchedulers")">
                                     <span class="menu-icon">
                                         <span class="svg-icon svg-icon-primary svg-icon-2x">
                                             <!--begin::Svg Icon | path:/var/www/preview.keenthemes.com/metronic/releases/2021-05-14-112058/theme/html/demo8/dist/../src/media/svg/icons/Navigation/Arrows-h.svg-->
@@ -152,7 +153,7 @@
                                             </svg><!--end::Svg Icon-->
                                         </span>
                                     </span>
-                                    <span class="menu-title">Device Schedulers</span>
+                                    <span class="menu-title">@ResourceTexts.DeviceSchedulers</span>
                                 </a>
                             </div>
 
@@ -221,7 +222,7 @@
                                                 @if (SignInManager.IsSignedIn(User))
                                                 {
                                                     var applicationUser = await UserManager.GetUserAsync(User);
-                                                    <a class="menu-link px-5">Welcome @applicationUser.FirstName @applicationUser.LastName ( @applicationUser.EmployeeNumber ) </a>
+                                                    <a class="menu-link px-5">@ResourceTexts.Welcome @applicationUser.FirstName @applicationUser.LastName ( @applicationUser.EmployeeNumber ) </a>
                                                 }
                                             </div>
 
@@ -245,7 +246,7 @@
                                             </a>
                                             </div>*@
                                             <div class="menu-item px-5">
-                                                <a href="@Url.Action("Logout","User")" class="menu-link px-5">Sign Out</a>
+                                                <a href="@Url.Action("Logout","User")" class="menu-link px-5">@ResourceTexts.Logout</a>
                                             </div>
 
                                         </div>

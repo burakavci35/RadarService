@@ -15,13 +15,11 @@ public partial class RadarDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Command> Commands { get; set; }
-
     public virtual DbSet<Device> Devices { get; set; }
 
-    public virtual DbSet<DeviceCommand> DeviceCommands { get; set; }
-
     public virtual DbSet<DeviceLog> DeviceLogs { get; set; }
+
+    public virtual DbSet<DeviceRequest> DeviceRequests { get; set; }
 
     public virtual DbSet<DeviceScheduler> DeviceSchedulers { get; set; }
 
@@ -33,20 +31,12 @@ public partial class RadarDbContext : DbContext
 
     public virtual DbSet<Scheduler> Schedulers { get; set; }
 
-    public virtual DbSet<Step> Steps { get; set; }
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseSqlServer("Server=localhost\\SQLExpress;Database=RadarDB;Trusted_Connection=True;TrustServerCertificate=True;");
 
-    public virtual DbSet<StepRequest> StepRequests { get; set; }
-
-   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Command>(entity =>
-        {
-            entity.ToTable("Command");
-
-            entity.Property(e => e.Name).HasMaxLength(50);
-        });
-
         modelBuilder.Entity<Device>(entity =>
         {
             entity.ToTable("Device");
@@ -57,26 +47,10 @@ public partial class RadarDbContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
         });
 
-        modelBuilder.Entity<DeviceCommand>(entity =>
-        {
-            entity.ToTable("DeviceCommand");
-
-            entity.HasOne(d => d.Command).WithMany(p => p.DeviceCommands)
-                .HasForeignKey(d => d.CommandId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DeviceCommand_Command");
-
-            entity.HasOne(d => d.Device).WithMany(p => p.DeviceCommands)
-                .HasForeignKey(d => d.DeviceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DeviceCommand_Device");
-        });
-
         modelBuilder.Entity<DeviceLog>(entity =>
         {
             entity.ToTable("DeviceLog");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.LogDateTime).HasColumnType("datetime");
             entity.Property(e => e.Type).HasMaxLength(50);
 
@@ -86,13 +60,28 @@ public partial class RadarDbContext : DbContext
                 .HasConstraintName("FK_DeviceLog_Device");
         });
 
+        modelBuilder.Entity<DeviceRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_DeviceCommand");
+
+            entity.ToTable("DeviceRequest");
+
+            entity.HasOne(d => d.Device).WithMany(p => p.DeviceRequests)
+                .HasForeignKey(d => d.DeviceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DeviceCommand_Device");
+
+            entity.HasOne(d => d.Request).WithMany(p => p.DeviceRequests)
+                .HasForeignKey(d => d.RequestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DeviceRequest_Request");
+        });
+
         modelBuilder.Entity<DeviceScheduler>(entity =>
         {
-            entity.HasKey(e => new { e.Id, e.SchedulerId, e.DeviceId });
+            entity.HasKey(e => e.Id).HasName("PK_DeviceScheduler_1");
 
             entity.ToTable("DeviceScheduler");
-
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.Device).WithMany(p => p.DeviceSchedulers)
                 .HasForeignKey(d => d.DeviceId)
@@ -122,6 +111,7 @@ public partial class RadarDbContext : DbContext
         {
             entity.ToTable("Request");
 
+            entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.Url).HasMaxLength(50);
         });
@@ -130,9 +120,7 @@ public partial class RadarDbContext : DbContext
         {
             entity.ToTable("ResponseCondition");
 
-            entity.Property(e => e.CommandName).HasMaxLength(100);
-            entity.Property(e => e.Condition).HasMaxLength(100);
-            entity.Property(e => e.Result).HasMaxLength(100);
+            entity.Property(e => e.RequestName).HasMaxLength(100);
 
             entity.HasOne(d => d.Request).WithMany(p => p.ResponseConditions)
                 .HasForeignKey(d => d.RequestId)
@@ -143,33 +131,6 @@ public partial class RadarDbContext : DbContext
         modelBuilder.Entity<Scheduler>(entity =>
         {
             entity.ToTable("Scheduler");
-        });
-
-        modelBuilder.Entity<Step>(entity =>
-        {
-            entity.ToTable("Step");
-
-            entity.Property(e => e.Name).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<StepRequest>(entity =>
-        {
-            entity.ToTable("StepRequest");
-
-            entity.HasOne(d => d.Command).WithMany(p => p.StepRequests)
-                .HasForeignKey(d => d.CommandId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StepRequest_Command");
-
-            entity.HasOne(d => d.Request).WithMany(p => p.StepRequests)
-                .HasForeignKey(d => d.RequestId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StepRequest_Request");
-
-            entity.HasOne(d => d.Step).WithMany(p => p.StepRequests)
-                .HasForeignKey(d => d.StepId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StepRequest_Step");
         });
 
         OnModelCreatingPartial(modelBuilder);

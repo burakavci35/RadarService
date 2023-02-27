@@ -4,7 +4,7 @@
 
 <div class="card shadow-sm">
     <div class="card-header">
-        <h3 class="card-title">Device List</h3>
+        <h3 class="card-title">Device Request List</h3>
         <div class="card-toolbar">
           
         </div>
@@ -37,22 +37,46 @@
 
 <script>
 
+    function getDataSource(url) {
 
+        var dropDownListSource =
+        {
+            datatype: "json",
+            datafields: [
+                { name: 'Text' },
+                { name: 'Value' }
+            ],
+            id: 'Id',
+            url: url
+
+        };
+        var dropdownListSource = [];
+        var dropdownListAdapter = new $.jqx.dataAdapter(dropDownListSource, { autoBind: true, async: false });
+
+
+
+        return dropdownListAdapter;
+
+    }
 
 
 
 
     $(document).ready(function () {
+
+        var deviceDataSource = getDataSource('@Url.Action("GetDeviceList")');
+        var requestDataSource = getDataSource('@Url.Action("GetRequestList")');
+
         var source =
         {
             datatype: "json",
             datafields: [
-                { name: 'Id', type: 'string' },
-                { name: 'Name', type: 'int' },
-                { name: 'BaseAddress', type: 'string' },
-                { name: 'Status', type: 'int' },
-                { name: 'IsActive', type: 'bool' },
-                { name: 'LastUpdateDateTime', type: 'date' },
+                { name: 'Id', type: 'int' },
+                { name: 'Device', value: 'DeviceId', values: { source: deviceDataSource.records, value: 'Value', name: 'Text' } },
+                { name: 'DeviceId', type: 'string' },
+                { name: 'Request', value: 'RequestId', values: { source: requestDataSource.records, value: 'Value', name: 'Text' } },
+                { name: 'RequestId', type: 'string' },
+
             ],
             id: 'Id',
             url: '@Url.Action("GetList")',
@@ -97,13 +121,16 @@
                             }
 
                         });
-                    }else{
+                    } else {
                         commit(false);
                     }
                 })
-               
+
             }
         };
+
+
+
         var dataAdapter = new $.jqx.dataAdapter(source);
         $("#jqxgrid").jqxGrid(
             {
@@ -125,17 +152,14 @@
                 showfilterrow: true,
                 selectionmode: 'singlecell',
                 showfilterrow: true,
-                editable: true,
                 showtoolbar: true,
+                editable: true,
                 rendertoolbar: function (toolbar) {
                     var me = this;
                     var container = $("<div style='margin: 5px; height:160px !important;'></div>");
                     toolbar.append(container);
                     container.append('<input id="addNewButton" type="button" value="Add New" />');
-                    container.append('<input  style="margin-left: 5px;" id="refreshButton" type="button" value="Refresh" />');
                     $("#addNewButton").jqxButton({ template: "primary" });
-                    $("#refreshButton").jqxButton({ template: "success" });
-
                     $("#addNewButton")
                         .on('click',
                             function () {
@@ -147,19 +171,20 @@
                                         $("#myModal").modal("show");
                                     });
                             });
-                    $("#refreshButton")
-                        .on('click',
-                            function () {
-
-                                $("#jqxgrid").jqxGrid('updatebounddata', 'cells');
-                            });
                 },
                 columns: [
-                    { text: 'Name', datafield: 'Name' },
-                    { text: 'Base Address', datafield: 'BaseAddress' },
-                    { text: 'Status', datafield: 'Status', editable : false },
-                    { text: 'Is Active', datafield: 'IsActive', columntype: 'checkbox' },
-                    { text: 'Last Update DateTime', datafield: 'LastUpdateDateTime', cellsformat: 'dd.MM.yyyy HH:mm:ss', editable: false },
+                    {
+                        text: 'Device', datafield: 'DeviceId', displayfield: 'Device', columntype: 'dropdownlist',
+                        createeditor: function (row, value, editor) {
+                            editor.jqxDropDownList({ source: deviceDataSource, displayMember: 'Text', valueMember: 'Value' });
+                        }
+                    },
+                    {
+                        text: 'Request', datafield: 'RequestId', displayfield: 'Request', columntype: 'dropdownlist',
+                        createeditor: function (row, value, editor) {
+                            editor.jqxDropDownList({ source: requestDataSource, displayMember: 'Text', valueMember: 'Value' });
+                        }
+                    },
                     {
                         text: 'Delete', datafield: 'Delete', columntype: 'button', cellsrenderer: function () {
                             return "Delete";
@@ -174,6 +199,9 @@
                     }
                 ]
             });
+
+
+
     });
     var CreateOnSuccess = function (data) {
         if (data.Success) {

@@ -14,13 +14,10 @@ namespace RadarService.Data.UnitOfWork
         IRepository<DeviceLog> DeviceLog { get; }
         IRepository<Scheduler> Scheduler { get; }
         IRepository<DeviceScheduler> DeviceScheduler { get; }
-        IRepository<DeviceCommand> DeviceCommand { get; }
-        IRepository<Command> Command { get; }
         IRepository<FormParameter> FormParameter { get; }
+        IRepository<DeviceRequest> DeviceRequest { get; }
         IRepository<Request> Request { get; }
-        IRepository<ResponseCondition> ResponseCondition { get; }
-        IRepository<Step> Step { get; }
-        IRepository<StepRequest> StepRequest { get; }
+        IRepository<ResponseCondition> ResponseCondition { get; }    
         Task SaveChangesAsync();
         void Dispose();
     }

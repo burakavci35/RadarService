@@ -20,7 +20,7 @@ namespace RadarService.Data.Repositories
 
         public IQueryable<TEntity> GetAll() => _context.Set<TEntity>().AsNoTracking();
 
-        public async Task<TEntity> GetByIdAsync(int id) => await _context.Set<TEntity>().FindAsync(id);
+        public async Task<TEntity> GetByIdAsync(params object?[]? keyValues) => await _context.Set<TEntity>().FindAsync(keyValues);
 
         public void Remove(TEntity entity) => _context.Set<TEntity>().Remove(entity);
 

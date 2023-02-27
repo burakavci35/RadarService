@@ -13,7 +13,7 @@ public partial class ResponseCondition
 
     public string Result { get; set; } = null!;
 
-    public string CommandName { get; set; } = null!;
+    public string RequestName { get; set; } = null!;
 
     public virtual Request Request { get; set; } = null!;
 }

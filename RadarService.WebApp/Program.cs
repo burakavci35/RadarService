@@ -46,14 +46,12 @@ builder.Services.AddScoped<DynamicAuthorizationService>();
 
 builder.Services.AddScoped<DbContext, RadarDbContext>();
 builder.Services.AddScoped<IRepository<Device>, Repository<Device>>();
-builder.Services.AddScoped<IRepository<Command>, Repository<Command>>();
-builder.Services.AddScoped<IRepository<Step>, Repository<Step>>();
+builder.Services.AddScoped<IRepository<DeviceRequest>, Repository<DeviceRequest>>();
 builder.Services.AddScoped<IRepository<Request>, Repository<Request>>();
 builder.Services.AddScoped<IRepository<FormParameter>, Repository<FormParameter>>();
-builder.Services.AddScoped<IRepository<StepRequest>, Repository<StepRequest>>();
 builder.Services.AddScoped<IRepository<Scheduler>, Repository<Scheduler>>();
 builder.Services.AddScoped<IRepository<DeviceScheduler>, Repository<DeviceScheduler>>();
-builder.Services.AddScoped<IRepository<DeviceCommand>, Repository<DeviceCommand>>();
+
 
 
 

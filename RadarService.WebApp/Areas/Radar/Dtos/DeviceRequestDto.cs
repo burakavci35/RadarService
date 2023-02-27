@@ -1,12 +1,12 @@
 ﻿namespace RadarService.WebApp.Areas.Radar.Dtos
 {
-    public class DeviceCommandDto
+    public class DeviceRequestDto
     {
         public int Id { get; set; }
 
         public int DeviceId { get; set; }
 
-        public int CommandId { get; set; }
+        public int RequestId { get; set; }
 
         public CommandDto? Command { get; set; }
 

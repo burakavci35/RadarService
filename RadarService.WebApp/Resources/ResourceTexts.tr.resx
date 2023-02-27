@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddNew" xml:space="preserve">
+    <value>Yeni Ekle</value>
+  </data>
   <data name="AlreadyHaveAccount" xml:space="preserve">
     <value>Hesabınız var mı?</value>
   </data>
@@ -134,6 +137,12 @@
   </data>
   <data name="Description" xml:space="preserve">
     <value>Açıklama</value>
+  </data>
+  <data name="Devices" xml:space="preserve">
+    <value>Cihazlar</value>
+  </data>
+  <data name="DeviceSchedulers" xml:space="preserve">
+    <value>Cihaz Planlama</value>
   </data>
   <data name="EmployeeNumber" xml:space="preserve">
     <value>Sicil No</value>
@@ -182,6 +191,9 @@
   </data>
   <data name="RoleUsers" xml:space="preserve">
     <value>Rol Kullanıcıları</value>
+  </data>
+  <data name="Schedulers" xml:space="preserve">
+    <value>Zamanlayıcılar</value>
   </data>
   <data name="UserList" xml:space="preserve">
     <value>Kullanıcı Listesi</value>

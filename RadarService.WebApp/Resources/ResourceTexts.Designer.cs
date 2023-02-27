@@ -61,6 +61,15 @@ namespace RadarService.WebApp.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AddNew.
+        /// </summary>
+        public static string AddNew {
+            get {
+                return ResourceManager.GetString("AddNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Already Have Account?.
         /// </summary>
         public static string AlreadyHaveAccount {
@@ -111,6 +120,24 @@ namespace RadarService.WebApp.Resources {
         public static string Description {
             get {
                 return ResourceManager.GetString("Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Devices.
+        /// </summary>
+        public static string Devices {
+            get {
+                return ResourceManager.GetString("Devices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DeviceSchedulers.
+        /// </summary>
+        public static string DeviceSchedulers {
+            get {
+                return ResourceManager.GetString("DeviceSchedulers", resourceCulture);
             }
         }
         
@@ -255,6 +282,15 @@ namespace RadarService.WebApp.Resources {
         public static string RoleUsers {
             get {
                 return ResourceManager.GetString("RoleUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Schedulers.
+        /// </summary>
+        public static string Schedulers {
+            get {
+                return ResourceManager.GetString("Schedulers", resourceCulture);
             }
         }
         

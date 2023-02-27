@@ -23,13 +23,11 @@ namespace RadarService.Data.UnitOfWork
         private IRepository<DeviceLog> _deviceLog;
         private IRepository<Scheduler> _scheduler;
         private IRepository<DeviceScheduler> _deviceScheduler;
-        private IRepository<DeviceCommand> _deviceCommand;
-        private IRepository<Command> _command;
         private IRepository<FormParameter> _formParameter;
+        private IRepository<DeviceRequest> _deviceRequest;
         private IRepository<Request> _request;
         private IRepository<ResponseCondition> _responseCondition;
-        private IRepository<Step> _step;
-        private IRepository<StepRequest> _stepRequest;
+    
 
 
         public IRepository<Device> Device => _device ??= new Repository<Device>(_context);
@@ -40,19 +38,12 @@ namespace RadarService.Data.UnitOfWork
 
         public IRepository<DeviceScheduler> DeviceScheduler => _deviceScheduler ??= new Repository<DeviceScheduler>(_context);
 
-        public IRepository<DeviceCommand> DeviceCommand => _deviceCommand ??= new Repository<DeviceCommand>(_context);
-
-        public IRepository<Command> Command => _command ??= new Repository<Command>(_context);
-
         public IRepository<FormParameter> FormParameter => _formParameter ??= new Repository<FormParameter>(_context);
 
+        public IRepository<DeviceRequest> DeviceRequest => _deviceRequest ??= new Repository<DeviceRequest>(_context);
         public IRepository<Request> Request => _request ??= new Repository<Request>(_context);
 
         public IRepository<ResponseCondition> ResponseCondition => _responseCondition ??= new Repository<ResponseCondition>(_context);
-
-        public IRepository<Step> Step => _step ??= new Repository<Step>(_context);
-
-        public IRepository<StepRequest> StepRequest => _stepRequest ??= new Repository<StepRequest>(_context);
 
         public void Dispose()
         {
