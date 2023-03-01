@@ -15,9 +15,15 @@ public partial class Request
 
     public string? Response { get; set; }
 
+    public int? ParentId { get; set; }
+
     public virtual ICollection<DeviceRequest> DeviceRequests { get; } = new List<DeviceRequest>();
 
     public virtual ICollection<FormParameter> FormParameters { get; } = new List<FormParameter>();
+
+    public virtual ICollection<Request> InverseParent { get; } = new List<Request>();
+
+    public virtual Request? Parent { get; set; }
 
     public virtual ICollection<ResponseCondition> ResponseConditions { get; } = new List<ResponseCondition>();
 }

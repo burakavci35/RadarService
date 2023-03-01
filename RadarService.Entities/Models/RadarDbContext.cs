@@ -114,6 +114,10 @@ public partial class RadarDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.Url).HasMaxLength(50);
+
+            entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
+                .HasForeignKey(d => d.ParentId)
+                .HasConstraintName("FK_Request_Request");
         });
 
         modelBuilder.Entity<ResponseCondition>(entity =>

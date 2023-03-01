@@ -185,52 +185,6 @@ namespace RadarService.Scheduler
 
         }
 
-        //private async Task<string> ExecuteStep(HttpClient client, Request request)
-        //{
-
-        //    try
-        //    {
-        //        if (request.Type == "POST")
-        //        {
-        //            var formData = request.FormParameters.Select(x => new KeyValuePair<string, string>(x.Name, x.Value));
-        //            var result = await client.PostAsync(request.Url, new FormUrlEncodedContent(formData));
-        //            _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} FormData : {formData}");
-        //            if (!result.IsSuccessStatusCode)
-        //            {
-        //                _logger.LogError($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
-
-        //            }
-        //            var response = await result.Content.ReadAsStringAsync();
-        //            _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
-
-
-        //            return response;
-
-        //        }
-        //        else
-        //        {
-
-        //            var result = request.Url == "/" ? await client.GetAsync($"/getSystemStatus?_={DateTimeOffset.Now.ToUnixTimeSeconds()}") : await client.GetAsync(request.Url);
-        //            _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
-        //            if (!result.IsSuccessStatusCode)
-        //            {
-        //                _logger.LogError($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
-
-        //            }
-        //            var response = await result.Content.ReadAsStringAsync();
-        //            _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
-        //            return response;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"MethodName : {nameof(ExecuteStep)} Request : {request.Url} Type : {request.Type} Error : {ex.Message}");
-
-        //        throw;
-        //    }
-
-        //}
-
         private async Task<string> ExecuteStep(HttpClient client, Request request)
         {
 
@@ -238,31 +192,48 @@ namespace RadarService.Scheduler
             {
                 if (request.Type == "POST")
                 {
+                    var formData = request.FormParameters.Select(x => new KeyValuePair<string, string>(x.Name, x.Value));
 
-                    return "";
+                    var result = await client.PostAsync(request.Url, new FormUrlEncodedContent(formData));
+
+                    _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} FormData : {formData}");
+
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        _logger.LogError($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
+
+                    }
+
+                    var response = await result.Content.ReadAsStringAsync();
+                   
+                    _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
+
+                    if(request.InverseParent.Any())
+                        return await ExecuteStep(client,request.InverseParent.First());
+                    return response;
+
                 }
                 else
                 {
-                    if (client.BaseAddress.ToString().Contains(".68"))
-                    {
-                        if (request.Url.Equals("/system/enforcement/1"))
-                            MockDevices[1] = "Active";
-                        if (request.Url.Equals("/system/enforcement/0"))
-                            MockDevices[1] = "Passive";
 
-                        return MockDevices[1];
-                    }
-                    if (client.BaseAddress.ToString().Contains(".69"))
-                    {
-                        if (request.Url.Equals("/system/enforcement/1"))
-                            MockDevices[2] = "Active";
-                        if (request.Url.Equals("/system/enforcement/0"))
-                            MockDevices[2] = "Passive";
+                    var result = request.Url == "/" ? await client.GetAsync($"/getSystemStatus?_={DateTimeOffset.Now.ToUnixTimeSeconds()}") : await client.GetAsync(request.Url);
 
-                        return MockDevices[2];
+                    _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
+
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        _logger.LogError($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
+
                     }
 
-                    return "Unknown";
+                    var response = await result.Content.ReadAsStringAsync();
+
+                    _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
+
+                   
+                    if(request.InverseParent.Any())
+                        return await ExecuteStep(client,request.InverseParent.First());
+                    return response;
                 }
             }
             catch (Exception ex)
@@ -273,5 +244,48 @@ namespace RadarService.Scheduler
             }
 
         }
+
+        //private async Task<string> ExecuteStep(HttpClient client, Request request)
+        //{
+
+        //    try
+        //    {
+        //        if (request.Type == "POST")
+        //        {
+
+        //            return "";
+        //        }
+        //        else
+        //        {
+        //            if (client.BaseAddress.ToString().Contains(".68"))
+        //            {
+        //                if (request.Url.Equals("/system/enforcement/1"))
+        //                    MockDevices[1] = "Active";
+        //                if (request.Url.Equals("/system/enforcement/0"))
+        //                    MockDevices[1] = "Passive";
+
+        //                return MockDevices[1];
+        //            }
+        //            if (client.BaseAddress.ToString().Contains(".69"))
+        //            {
+        //                if (request.Url.Equals("/system/enforcement/1"))
+        //                    MockDevices[2] = "Active";
+        //                if (request.Url.Equals("/system/enforcement/0"))
+        //                    MockDevices[2] = "Passive";
+
+        //                return MockDevices[2];
+        //            }
+
+        //            return "Unknown";
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError($"MethodName : {nameof(ExecuteStep)} Request : {request.Url} Type : {request.Type} Error : {ex.Message}");
+
+        //        throw;
+        //    }
+
+        //}
     }
 }

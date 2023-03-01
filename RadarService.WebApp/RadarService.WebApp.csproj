@@ -60,6 +60,10 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Update="Areas\Radar\Views\Requests\Index.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Update="Areas\Radar\Views\Schedulers\CreatePartialView.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -92,6 +96,7 @@
     <_ContentIncludedByDefault Remove="Areas\Radar\Views\DeviceRequests\CreatePartialView.cshtml" />
     <_ContentIncludedByDefault Remove="Areas\Radar\Views\Devices\CreatePartialView.cshtml" />
     <_ContentIncludedByDefault Remove="Areas\Authorization\Views\Role\CreatePartialView.cshtml" />
+    <_ContentIncludedByDefault Remove="Areas\Radar\Views\Requests\CreatePartialView.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -1432,6 +1437,10 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Areas\Radar\Views\DeviceRequests\CreatePartialView.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Areas\Radar\Views\Requests\CreatePartialView.cshtml" />
   </ItemGroup>
 
 </Project>

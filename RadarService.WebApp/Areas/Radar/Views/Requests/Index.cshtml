@@ -1,49 +1,199 @@
-﻿@using RadarService.WebApp.Areas.Radar.Dtos;
-@model IEnumerable<RequestDto>
-
-@{
-    ViewData["Title"] = "Steps";
-
-    var command = Model.FirstOrDefault();
+﻿@{
+    ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h3 class="card-title">Reuqest List</h3>
+        <div class="card-toolbar">
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="jqxgrid"></div>
+    </div>
 
-<p>
-    <a asp-action="Create"  >Create New</a>
-</p>
+</div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Url)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Type)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body" id="modalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+
+
+
+
+
+
+    $(document).ready(function () {
+        var source =
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Url)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Type)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Index" asp-controller="FormParameters" asp-route-requestId="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
+            datatype: "json",
+            datafields: [
+                { name: 'Id', type: 'string' },
+                { name: 'Name', type: 'int' },
+                { name: 'Url', type: 'string' },
+                { name: 'Type', type: 'string' },
+                { name: 'Response', type: 'string' },
+                { name: 'ParentId', type: 'int' }
+
+            ],
+            id: 'Id',
+            url: '@Url.Action("GetList")',
+            updaterow: function (rowid, newdata, commit) {
+                $.post('@Url.Action("Edit")', { id: rowid, entityDto: newdata }, function (data) {
+                    if (data.Success) {
+                        commit(true);
+                    } else {
+                        commit(false);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.Message,
+
+                        });
+                    }
+
+                });
+
+                commit(true);
+            },
+            deleterow: function (rowid, commit) {
+                var rowdata = $('#jqxgrid').jqxGrid('getrowdatabyid', rowid);
+                Swal.fire({
+                    title: 'Do you want to delete this item?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Delete',
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        $.post('@Url.Action("DeleteConfirmed")', { id: rowdata.Id }, function (data) {
+                            if (data.Success) {
+                                commit(true);
+                            } else {
+                                commit(false);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: data.Message,
+
+                                });
+                            }
+
+                        });
+                    } else {
+                        commit(false);
+                    }
+                })
+
+            }
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        $("#jqxgrid").jqxGrid(
+            {
+                theme: 'bootstrap',
+                altrows: true,
+                columnsresize: true,
+                width: '%100',
+                source: dataAdapter,
+                sortable: true,
+                filterable: true,
+                filtermode: "excel",
+                autoshowfiltericon: true,
+                enabletooltips: true,
+                pageable: true,
+                autoheight: true,
+                pagesize: 20,
+                pagerButtonsCount: 10,
+                showaggregates: true,
+                showfilterrow: true,
+                selectionmode: 'singlecell',
+                showfilterrow: true,
+                editable: true,
+                showtoolbar: true,
+                rendertoolbar: function (toolbar) {
+                    var me = this;
+                    var container = $("<div style='margin: 5px; height:160px !important;'></div>");
+                    toolbar.append(container);
+                    container.append('<input id="addNewButton" type="button" value="Add New" />');
+                    container.append('<input  style="margin-left: 5px;" id="refreshButton" type="button" value="Refresh" />');
+                    $("#addNewButton").jqxButton({ template: "primary" });
+                    $("#refreshButton").jqxButton({ template: "success" });
+
+                    $("#addNewButton")
+                        .on('click',
+                            function () {
+
+                                $.get("@Url.Action("CreatePartialView")",
+                                    function (data) {
+                                        $('.modal-body').html(data);
+                                        jQuery.validator.unobtrusive.parse('.modal-body')
+                                        $("#myModal").modal("show");
+                                    });
+                            });
+                    $("#refreshButton")
+                        .on('click',
+                            function () {
+
+                                $("#jqxgrid").jqxGrid('updatebounddata', 'cells');
+                            });
+                },
+                columns: [
+                    { text: 'Name', datafield: 'Name' },
+                    { text: 'Url', datafield: 'Url' },
+                    { text: 'Type', datafield: 'Type' },
+                    { text: 'Response', datafield: 'Response' },
+                    { text: 'ParentId', datafield: 'ParentId' },                   
+                    {
+                        text: 'Delete', datafield: 'Delete', columntype: 'button', cellsrenderer: function () {
+                            return "Delete";
+                        }, buttonclick: function (row) {
+
+                            var rowid = $('#jqxgrid').jqxGrid('getrowid', row);
+                            var commit = $("#jqxgrid").jqxGrid('deleterow', rowid);
+
+
+
+                        }
+                    }
+                ]
+            });
+    });
+    var CreateOnSuccess = function (data) {
+        if (data.Success) {
+            $("#myModal").modal("hide");
+            $("#jqxgrid").jqxGrid('updatebounddata', 'cells');
+        } else {
+            $("#myModal").modal("hide");
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: data.Message,
+
+            });
         }
-    </tbody>
-</table>
+    };
+
+</script>
+
+
+
 
 
 
