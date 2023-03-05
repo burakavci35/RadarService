@@ -65,16 +65,12 @@ namespace RadarService.Authorization.Services
 
             if (!await _userManager.CheckPasswordAsync(foundUser, loginDto.Password)) return new LoginResult() { IsSuccess = false, Message = "Invalid UserName or Password" };
 
+          
             var signInResult = await _signInManager.PasswordSignInAsync(foundUser, loginDto.Password, loginDto.Persistent, true);
 
             if (signInResult.Succeeded)
             {
-                if (!await _userManager.IsInRoleAsync(foundUser, "User"))
-                    await _userManager.AddToRoleAsync(foundUser, "User");
-
-                foundUser.LastLoginDateTime= DateTime.Now;
-                await _userManager.UpdateAsync(foundUser);
-
+              
                 return new LoginResult() { IsSuccess = true, Message = "Login Successfully" };
             }
 
@@ -139,11 +135,11 @@ namespace RadarService.Authorization.Services
                 await _roleManager.CreateAsync(new ApplicationRole() { Name = "User", Access = JsonSerializer.Serialize(_mvcControllerDiscovery.GetControllerInfos().Where(x => x.Id.Contains("Home"))) });
                 await _userManager.AddToRoleAsync(newUser, "User");
             }
-            else
-            {
-                if (!await _userManager.IsInRoleAsync(newUser, "User"))
-                    await _userManager.AddToRoleAsync(newUser, "User");
-            }
+            //else
+            //{
+            //    if (!await _userManager.IsInRoleAsync(newUser, "User"))
+            //        await _userManager.AddToRoleAsync(newUser, "User");
+            //}
 
             loginResult.IsSuccess = true;
             loginResult.Message = "User Registered Successfully";

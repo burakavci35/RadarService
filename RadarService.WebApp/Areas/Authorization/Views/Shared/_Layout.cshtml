@@ -3,8 +3,10 @@
 @using RadarService.WebApp
 @using RadarService.WebApp.Helper;
 @using RadarService.WebApp.Resources;
+@using RadarService.WebApp.ViewComponents;
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject DynamicAuthorizationService Validation
 @{
     var currentUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 

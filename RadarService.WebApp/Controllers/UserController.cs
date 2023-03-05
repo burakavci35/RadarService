@@ -17,6 +17,13 @@ namespace RadarService.WebApp.Controllers
 			_userSevice = userSevice;
 		}
 
+		 [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+
 		public IActionResult Register()
 		{
 			return View();

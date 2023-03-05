@@ -35,10 +35,8 @@ namespace RadarService.Scheduler
                 _unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>());
                 var activeDevices = _unitOfWork.Device.GetAll().Where(x => x.IsActive).Include(x => x.DeviceSchedulers).ThenInclude(x => x.Scheduler).ToList();
                 foreach (var device in activeDevices)
-                {
                     await ExecuteDevice(device);
 
-                }
                 _logger.LogInformation("Worker Completed at: {time}", DateTimeOffset.Now);
                 await Task.Delay(TimeSpan.FromSeconds(Convert.ToInt32(_configuration.GetSection("IntervalSeconds").Value)), stoppingToken);
             }
@@ -47,73 +45,110 @@ namespace RadarService.Scheduler
         {
             try
             {
+
+
                 _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Started!");
                 HttpClientHandler clientHandler = new HttpClientHandler();
                 clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
                 var client = new HttpClient(clientHandler) { BaseAddress = new Uri(device.BaseAddress) };
-
-                if (!await LoginDevice(client, device, "Login"))
+                try
                 {
-                    _logger.LogError($"Method : {nameof(ExecuteDevice)} Device Name {device.Name} Login Error!");
+
+                    if (!await LoginDevice(client, device, "Login"))
+                    {
+                        _logger.LogError($"Method : {nameof(ExecuteDevice)} Device Name {device.Name} Login Error!");
+                        await LogoutDevice(client, device, "Logout");
+                        return;
+                    }
+
+                    var resultStatus = await CheckDeviceStatus(client, device, "CheckDeviceStatus");
+                    using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
+                    {
+                        var foundDevice = await _unitOfWork.Device.GetByIdAsync(device.Id);
+                        foundDevice.Status = resultStatus ?? "Unknown";
+                        foundDevice.LastUpdateDateTime = DateTime.Now;
+                        unitOfWork.Device.Update(foundDevice);
+                        await unitOfWork.SaveChangesAsync();
+                    }
+
+                    if (device.DeviceSchedulers.Any(x => x.Scheduler.StartTime.Ticks <= DateTime.Now.TimeOfDay.Ticks && DateTime.Now.TimeOfDay.Ticks <= x.Scheduler.EndTime.Ticks)
+                           && resultStatus == "Passive")
+                    {
+                        await SendDeviceRequest(client, device, "Open");
+                        _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Activated!");
+                        using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
+                        {
+                            await unitOfWork.DeviceLog.AddAsync(new DeviceLog()
+                            {
+                                DeviceId = device.Id,
+                                LogDateTime = DateTime.Now,
+                                Type = "Information",
+                                Message = $"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Activated!"
+                            });
+                            await unitOfWork.SaveChangesAsync();
+                        }
+
+
+                    }
+                    if (!device.DeviceSchedulers.Any(x => x.Scheduler.StartTime.Ticks <= DateTime.Now.TimeOfDay.Ticks && DateTime.Now.TimeOfDay.Ticks <= x.Scheduler.EndTime.Ticks)
+                      && device.Status == "Active")
+                    {
+                        await SendDeviceRequest(client, device, "Close");
+                        _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Deactivated!");
+
+                        using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
+                        {
+                            await unitOfWork.DeviceLog.AddAsync(new DeviceLog()
+                            {
+                                DeviceId = device.Id,
+                                LogDateTime = DateTime.Now,
+                                Type = "Information",
+                                Message = $"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Deactivated!"
+                            });
+                            await unitOfWork.SaveChangesAsync();
+                        }
+                    }
+                    if (device.Status == "Configuration")
+                    {
+                        if (!await ConfigureDevice(client, device, "Configuration"))
+                        {
+                            _logger.LogError($"Method : {nameof(ExecuteDevice)} Device Name {device.Name} Configuration Error!");
+                            await LogoutDevice(client, device, "Logout");
+                            return;
+                        }
+                        _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} ReConfigurated!");
+
+                        using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
+                        {
+                            await unitOfWork.DeviceLog.AddAsync(new DeviceLog()
+                            {
+                                DeviceId = device.Id,
+                                LogDateTime = DateTime.Now,
+                                Type = "Information",
+                                Message = $"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} ReConfigurated!"
+                            });
+                            await unitOfWork.SaveChangesAsync();
+                        }
+                    }
+
+
                     await LogoutDevice(client, device, "Logout");
-                    return;
-                }
 
-                var resultStatus = await CheckDeviceStatus(client, device, "CheckDeviceStatus");
-                using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
+                    _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Completed!");
+                }
+                catch (Exception ex)
                 {
-                    var foundDevice = await _unitOfWork.Device.GetByIdAsync(device.Id);
-                    foundDevice.Status = resultStatus ?? "Unknown";
-                    foundDevice.LastUpdateDateTime = DateTime.Now;
-                    unitOfWork.Device.Update(foundDevice);
-                    await unitOfWork.SaveChangesAsync();
-                }
+                    _logger.LogError($"Method : {nameof(ExecuteDevice)} Device Name {device.Name} Error : {ex.Message}");
 
-                if (device.DeviceSchedulers.Any(x => x.Scheduler.StartTime.Ticks <= DateTime.Now.TimeOfDay.Ticks && DateTime.Now.TimeOfDay.Ticks <= x.Scheduler.EndTime.Ticks)
-                       && resultStatus == "Passive")
+                }
+                finally
                 {
-                    await SendDeviceRequest(client, device, "Open");
-                    _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Activated!");
-                    using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
-                    {
-                        await unitOfWork.DeviceLog.AddAsync(new DeviceLog()
-                        {
-                            DeviceId = device.Id,
-                            LogDateTime = DateTime.Now,
-                            Type = "Information",
-                            Message = $"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Activated!"
-                        });
-                        await unitOfWork.SaveChangesAsync();
-                    }
-
-
+                    await LogoutDevice(client, device, "Logout");
                 }
-                if (!device.DeviceSchedulers.Any(x => x.Scheduler.StartTime.Ticks <= DateTime.Now.TimeOfDay.Ticks && DateTime.Now.TimeOfDay.Ticks <= x.Scheduler.EndTime.Ticks)
-                  && device.Status == "Active")
-                {
-                    await SendDeviceRequest(client, device, "Close");
-                    _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Deactivated!");
-
-                    using (var unitOfWork = new UnitOfWork(_serviceProvider.CreateScope().ServiceProvider.GetRequiredService<RadarDbContext>()))
-                    {
-                        await unitOfWork.DeviceLog.AddAsync(new DeviceLog()
-                        {
-                            DeviceId = device.Id,
-                            LogDateTime = DateTime.Now,
-                            Type = "Information",
-                            Message = $"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Deactivated!"
-                        });
-                        await unitOfWork.SaveChangesAsync();
-                    }
-                }
-                await LogoutDevice(client, device, "Logout");
-
-                _logger.LogInformation($"MethodName : {nameof(ExecuteDevice)} Device : {device.Name} Completed!");
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Method : {nameof(ExecuteDevice)} Device Name {device.Name} Error : {ex.Message}");
-
             }
 
         }
@@ -133,6 +168,23 @@ namespace RadarService.Scheduler
 
             return expectedResult.Contains(foundDeviceRequest.Request.Response);
         }
+
+        private async Task<bool> ConfigureDevice(HttpClient client, Device device, string configurationName)
+        {
+            var foundDeviceRequest = await _unitOfWork.DeviceRequest.GetAll()
+                .Include(x => x.Device).Include(x => x.Request).ThenInclude(x => x.FormParameters)
+               .Where(x => x.DeviceId == device.Id)
+               .FirstOrDefaultAsync(x => x.Request.Name.Equals(configurationName));
+
+            if (foundDeviceRequest == null) throw new Exception($"Method : {nameof(ConfigureDevice)} Error : Name {configurationName} Not Found Error!");
+
+            var expectedResult = await ExecuteStep(client, foundDeviceRequest.Request);
+
+            if (expectedResult == null) throw new Exception($"Method : {nameof(ConfigureDevice)} Error :  Name {configurationName} Not Found Error!");
+
+            return expectedResult.Contains(foundDeviceRequest.Request.Response);
+        }
+
 
         private async Task LogoutDevice(HttpClient client, Device device, string logoutRequestName)
         {
@@ -205,11 +257,11 @@ namespace RadarService.Scheduler
                     }
 
                     var response = await result.Content.ReadAsStringAsync();
-                   
+
                     _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
 
-                    if(request.InverseParent.Any())
-                        return await ExecuteStep(client,request.InverseParent.First());
+                    if (request.InverseParent.Any())
+                        return await ExecuteStep(client, request.InverseParent.First());
                     return response;
 
                 }
@@ -230,9 +282,9 @@ namespace RadarService.Scheduler
 
                     _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
 
-                   
-                    if(request.InverseParent.Any())
-                        return await ExecuteStep(client,request.InverseParent.First());
+
+                    if (request.InverseParent.Any())
+                        return await ExecuteStep(client, request.InverseParent.First());
                     return response;
                 }
             }
