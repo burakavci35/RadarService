@@ -70,7 +70,8 @@ namespace RadarService.Authorization.Services
 
             if (signInResult.Succeeded)
             {
-              
+                foundUser.LastLoginDateTime= DateTime.Now;
+                await _userManager.UpdateAsync(foundUser);
                 return new LoginResult() { IsSuccess = true, Message = "Login Successfully" };
             }
 
@@ -91,6 +92,10 @@ namespace RadarService.Authorization.Services
 
             if (!result.Succeeded) return new LoginResult() { IsSuccess = false, Message = "Login Failed Unknown Result" };
             
+            foundUser.PasswordUpdateDateTime= DateTime.Now;
+
+            await _userManager.UpdateAsync(foundUser);
+
             return new LoginResult() { IsSuccess = true, Message = $"User : {foundUser.EmployeeNumber} Password Changed Successfully!" };
         }
 
