@@ -51,6 +51,7 @@ builder.Services.AddScoped<IRepository<Request>, Repository<Request>>();
 builder.Services.AddScoped<IRepository<FormParameter>, Repository<FormParameter>>();
 builder.Services.AddScoped<IRepository<Scheduler>, Repository<Scheduler>>();
 builder.Services.AddScoped<IRepository<DeviceScheduler>, Repository<DeviceScheduler>>();
+builder.Services.AddScoped<IRepository<Location>, Repository<Location>>();
 
 
 

@@ -159,6 +159,9 @@
   <data name="LastName" xml:space="preserve">
     <value>Last Name</value>
   </data>
+  <data name="Locations" xml:space="preserve">
+    <value>Locations</value>
+  </data>
   <data name="Login" xml:space="preserve">
     <value>Login</value>
   </data>

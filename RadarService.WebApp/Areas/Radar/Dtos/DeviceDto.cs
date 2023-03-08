@@ -12,6 +12,8 @@
 
         public bool IsActive { get; set; }
 
-        public DateTime? LastUpdateDateTime { get; set; }= null;
+        public DateTime? LastUpdateDateTime { get; set; } = null;
+
+        public int LocationId { get; set; }
     }
 }

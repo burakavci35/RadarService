@@ -25,6 +25,8 @@ public partial class RadarDbContext : DbContext
 
     public virtual DbSet<FormParameter> FormParameters { get; set; }
 
+    public virtual DbSet<Location> Locations { get; set; }
+
     public virtual DbSet<Request> Requests { get; set; }
 
     public virtual DbSet<ResponseCondition> ResponseConditions { get; set; }
@@ -41,10 +43,15 @@ public partial class RadarDbContext : DbContext
         {
             entity.ToTable("Device");
 
-            entity.Property(e => e.BaseAddress).HasMaxLength(50);
+            entity.Property(e => e.BaseAddress).HasMaxLength(100);
             entity.Property(e => e.LastUpdateDateTime).HasColumnType("datetime");
-            entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(50);
+
+            entity.HasOne(d => d.Location).WithMany(p => p.Devices)
+                .HasForeignKey(d => d.LocationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Device_Location");
         });
 
         modelBuilder.Entity<DeviceLog>(entity =>
@@ -105,6 +112,13 @@ public partial class RadarDbContext : DbContext
                 .HasForeignKey(d => d.RequestId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_FormParameter_Request");
+        });
+
+        modelBuilder.Entity<Location>(entity =>
+        {
+            entity.ToTable("Location");
+
+            entity.Property(e => e.Name).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Request>(entity =>

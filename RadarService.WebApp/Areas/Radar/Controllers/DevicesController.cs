@@ -24,11 +24,13 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
     public class DevicesController : Controller
     {
         private readonly IRepository<Device> _deviceRepository;
+        private readonly IRepository<Location> _locationRepository;
         private readonly IMapper _mapper;
 
-        public DevicesController(IRepository<Device> deviceRepository, IMapper mapper)
+        public DevicesController(IRepository<Device> deviceRepository, IMapper mapper, IRepository<Location> locationRepository)
         {
             _deviceRepository = deviceRepository;
+            _locationRepository = locationRepository;
             _mapper = mapper;
         }
 
@@ -42,11 +44,21 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
             return Json(_mapper.Map<List<DeviceDto>>(await _deviceRepository.GetAll().ToListAsync()));
         }
 
-        public IActionResult CreatePartialView() => PartialView();
+        public async Task<IActionResult> GetLocationList()
+        {
+            return Json(_mapper.Map<List<LocationDto>>(await _locationRepository.GetAll().ToListAsync()).Select(x => new SelectListItem() { Text = x.Name, Value = x.Id.ToString() }));
+        }
+
+        public IActionResult CreatePartialView()
+        {
+             ViewData["LocationId"] = new SelectList(_locationRepository.GetAll(), "Id", "Name");
+            return PartialView();
+        }
+
         [HttpPost]
         public async Task<JsonResult> CreatePartialView(DeviceDto entityDto)
         {
-              ModelState.Remove($"{nameof(entityDto)}.{nameof(entityDto.LastUpdateDateTime)}");
+            ModelState.Remove($"{nameof(entityDto)}.{nameof(entityDto.LastUpdateDateTime)}");
             if (ModelState.IsValid)
             {
                 //return Json();
@@ -62,14 +74,14 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, DeviceDto entityDto)
         {
-           
+
             ModelState.Remove($"{nameof(entityDto)}.{nameof(entityDto.LastUpdateDateTime)}");
             if (ModelState.IsValid)
             {
                 var foundEntity = await _deviceRepository.GetByIdAsync(id);
 
                 if (foundEntity == null) { return NotFound(); }
-
+                foundEntity.LocationId = entityDto.LocationId;
                 foundEntity.Name = entityDto.Name;
                 foundEntity.BaseAddress = entityDto.BaseAddress;
                 foundEntity.IsActive = entityDto.IsActive;

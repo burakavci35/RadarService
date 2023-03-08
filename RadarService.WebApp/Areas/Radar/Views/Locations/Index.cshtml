@@ -4,17 +4,16 @@
 
 <div class="card shadow-sm">
     <div class="card-header">
-        <h3 class="card-title">Device List</h3>
+        <h3 class="card-title">Location List</h3>
         <div class="card-toolbar">
-          
         </div>
     </div>
     <div class="card-body">
         <div id="jqxgrid"></div>
     </div>
-  
+
 </div>
-             
+
 
 
 <div class="modal fade" id="myModal" role="dialog">
@@ -39,45 +38,18 @@
 
 
 
-    function getDataSource(url) {
 
-        var dropDownListSource =
-        {
-            datatype: "json",
-            datafields: [
-                { name: 'Text' },
-                { name: 'Value' }
-            ],
-            id: 'Id',
-            url: url
-
-        };
-        var dropdownListSource = [];
-        var dropdownListAdapter = new $.jqx.dataAdapter(dropDownListSource, { autoBind: true, async: false });
-
-
-
-        return dropdownListAdapter;
-
-    }
 
 
     $(document).ready(function () {
-
-        var schedulerDataSource = getDataSource('@Url.Action("GetLocationList")');
-
         var source =
         {
             datatype: "json",
             datafields: [
-                { name: 'Id', type: 'string' },
+                { name: 'Id', type: 'int' },
                 { name: 'Name', type: 'string' },
-                { name: 'BaseAddress', type: 'string' },
-                { name: 'Status', type: 'string' },
-                { name: 'IsActive', type: 'bool' },
-                { name: 'LastUpdateDateTime', type: 'date' },
-                { name: 'Location', value: 'LocationId', values: { source: schedulerDataSource.records, value: 'Value', name: 'Text' } },
-                { name: 'LocationId', type: 'string' }
+               
+
             ],
             id: 'Id',
             url: '@Url.Action("GetList")',
@@ -122,11 +94,11 @@
                             }
 
                         });
-                    }else{
+                    } else {
                         commit(false);
                     }
                 })
-               
+
             }
         };
         var dataAdapter = new $.jqx.dataAdapter(source);
@@ -180,17 +152,7 @@
                             });
                 },
                 columns: [
-                    {
-                        text: 'Location',width:'10%', datafield: 'LocationId', displayfield: 'Location', columntype: 'dropdownlist',
-                        createeditor: function (row, value, editor) {
-                            editor.jqxDropDownList({ source: schedulerDataSource, displayMember: 'Text', valueMember: 'Value' });
-                        }
-                    },
-                    { text: 'Name',width:'25%', datafield: 'Name' },
-                    { text: 'Base Address', datafield: 'BaseAddress' },
-                    { text: 'Status', datafield: 'Status', editable : false },
-                    { text: 'Is Active', datafield: 'IsActive', columntype: 'checkbox' },
-                    { text: 'Last Update DateTime', datafield: 'LastUpdateDateTime', cellsformat: 'dd.MM.yyyy HH:mm:ss', editable: false },
+                    { text: 'Name', datafield: 'Name' },
                     {
                         text: 'Delete', datafield: 'Delete', columntype: 'button', cellsrenderer: function () {
                             return "Delete";
@@ -220,6 +182,8 @@
             });
         }
     };
+
+
 
 </script>
 

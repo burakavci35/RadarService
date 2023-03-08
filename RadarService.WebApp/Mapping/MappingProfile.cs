@@ -28,6 +28,7 @@ namespace RadarService.WebApp.Mapping
             CreateMap<DeviceScheduler, DeviceSchedulerDto>().ReverseMap();
             CreateMap<DeviceRequest, DeviceRequestDto>().ReverseMap();
             CreateMap<Device, DeviceDto>().ReverseMap();
+            CreateMap<Location, LocationDto>().ReverseMap();
 
         }
 

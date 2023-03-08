@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RadarService.Data.Repositories;
 using RadarService.Entities.Models;
@@ -15,12 +10,12 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
 {
     [Area("Radar")]
     [Authorize]
-    public class SchedulersController : Controller
+    public class LocationsController : Controller
     {
-        private readonly IRepository<Scheduler> _repository;
+        private readonly IRepository<Location> _repository;
         private readonly IMapper _mapper;
 
-        public SchedulersController(IRepository<Scheduler> repository, IMapper mapper)
+        public LocationsController(IRepository<Location> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
@@ -33,20 +28,17 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
 
         public async Task<IActionResult> GetList()
         {
-            return Json(_mapper.Map<List<SchedulerDto>>(await _repository.GetAll().ToListAsync()));
+            return Json(_mapper.Map<List<LocationDto>>(await _repository.GetAll().ToListAsync()));
         }
 
         public IActionResult CreatePartialView() => PartialView();
         [HttpPost]
-        public async Task<JsonResult> CreatePartialView(SchedulerDto entityDto)
+        public async Task<JsonResult> CreatePartialView(LocationDto entityDto)
         {
-            var StartEndTimeStrings = entityDto.DateRange?.Split(" - ");
-            entityDto.StartTime = TimeSpan.Parse(StartEndTimeStrings!?.First());
-            entityDto.EndTime = TimeSpan.Parse(StartEndTimeStrings!?.Last());
 
             if (ModelState.IsValid)
             {
-                await _repository.AddAsync(_mapper.Map<Scheduler>(entityDto));
+                await _repository.AddAsync(_mapper.Map<Location>(entityDto));
                 await _repository.SaveChanges();
                 return Json(new { Success = true });
             }
@@ -54,7 +46,7 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, SchedulerDto entityDto)
+        public async Task<IActionResult> Edit(int id, LocationDto entityDto)
         {
             if (ModelState.IsValid)
             {
@@ -62,8 +54,8 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
 
                 if (foundEntity == null) { return NotFound(); }
 
-                foundEntity.StartTime = entityDto.StartTime;
-                foundEntity.EndTime = entityDto.EndTime;
+                foundEntity.Name = entityDto.Name;
+
                 _repository.Update(foundEntity);
                 await _repository.SaveChanges();
                 return Json(new { Success = true, Message = "" });

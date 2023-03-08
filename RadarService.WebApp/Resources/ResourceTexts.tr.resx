@@ -159,6 +159,9 @@
   <data name="LastName" xml:space="preserve">
     <value>Soyisim</value>
   </data>
+  <data name="Locations" xml:space="preserve">
+    <value>Lokasyonlar</value>
+  </data>
   <data name="Login" xml:space="preserve">
     <value>Giriş Yap</value>
   </data>

@@ -17,9 +17,13 @@ public partial class Device
 
     public DateTime? LastUpdateDateTime { get; set; }
 
+    public int LocationId { get; set; }
+
     public virtual ICollection<DeviceLog> DeviceLogs { get; } = new List<DeviceLog>();
 
     public virtual ICollection<DeviceRequest> DeviceRequests { get; } = new List<DeviceRequest>();
 
     public virtual ICollection<DeviceScheduler> DeviceSchedulers { get; } = new List<DeviceScheduler>();
+
+    public virtual Location Location { get; set; } = null!;
 }

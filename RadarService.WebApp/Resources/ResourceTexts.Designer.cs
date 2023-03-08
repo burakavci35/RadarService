@@ -187,6 +187,15 @@ namespace RadarService.WebApp.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Locations.
+        /// </summary>
+        public static string Locations {
+            get {
+                return ResourceManager.GetString("Locations", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Login.
         /// </summary>
         public static string Login {
