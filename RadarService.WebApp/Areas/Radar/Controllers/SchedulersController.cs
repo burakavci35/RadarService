@@ -43,7 +43,7 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
             var StartEndTimeStrings = entityDto.DateRange?.Split(" - ");
             entityDto.StartTime = TimeSpan.Parse(StartEndTimeStrings!?.First());
             entityDto.EndTime = TimeSpan.Parse(StartEndTimeStrings!?.Last());
-
+            entityDto.EndTime = entityDto.StartTime > entityDto.EndTime ? entityDto.EndTime.Add(new TimeSpan(1,0,0,0)) : entityDto.EndTime;
             if (ModelState.IsValid)
             {
                 await _repository.AddAsync(_mapper.Map<Scheduler>(entityDto));
@@ -62,8 +62,9 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
 
                 if (foundEntity == null) { return NotFound(); }
 
-                foundEntity.StartTime = entityDto.StartTime;
+                foundEntity.StartTime =entityDto.StartTime;
                 foundEntity.EndTime = entityDto.EndTime;
+                foundEntity.EndTime =entityDto.StartTime > entityDto.EndTime ? entityDto.EndTime.Add(new TimeSpan(1,0,0,0)) : foundEntity.EndTime;
                 _repository.Update(foundEntity);
                 await _repository.SaveChanges();
                 return Json(new { Success = true, Message = "" });
