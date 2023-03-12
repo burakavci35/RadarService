@@ -50,7 +50,7 @@ namespace RadarService.WebApp.Areas.Radar.Controllers
 
         public async Task<IActionResult> GetSchedulerList()
         {
-            return Json(_mapper.Map<List<SchedulerDto>>(await _schedulerRepository.GetAll().ToListAsync()).Select(x => new SelectListItem() { Text = x.Name, Value = x.Id.ToString() }));
+            return Json(_mapper.Map<List<SchedulerDto>>(await _schedulerRepository.GetAll().ToListAsync()).Select(x => new SelectListItem() { Text = x.TimeRange, Value = x.Id.ToString() }));
         }
 
         public IActionResult CreatePartialView()

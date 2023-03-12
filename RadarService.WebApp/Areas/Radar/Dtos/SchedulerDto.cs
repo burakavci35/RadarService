@@ -6,6 +6,9 @@ namespace RadarService.WebApp.Areas.Radar.Dtos
     public class SchedulerDto
     {
         public int Id { get; set; }
+
+        public string Name { get; set; } = null!;
+
         [DataType(DataType.Time)]
         [BindProperty, DisplayFormat(DataFormatString = "{0:HH:mm}", ApplyFormatInEditMode = true)]
         public TimeSpan StartTime { get; set; }
@@ -15,6 +18,6 @@ namespace RadarService.WebApp.Areas.Radar.Dtos
        
         public string? DateRange { get; set; }
 
-        public string Name => $"{StartTime} - {EndTime}";
+        public string TimeRange => $"{StartTime} - {EndTime}";
     }
 }

@@ -149,7 +149,7 @@ public partial class RadarDbContext : DbContext
         modelBuilder.Entity<Scheduler>(entity =>
         {
             entity.ToTable("Scheduler");
-
+            entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.EndTime).HasConversion<long>();
             entity.Property(e => e.StartTime).HasConversion<long>();
         });

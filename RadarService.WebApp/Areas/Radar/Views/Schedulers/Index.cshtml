@@ -59,7 +59,8 @@
         {
             datatype: "json",
             datafields: [
-                { name: 'Id', type: 'string' },
+                { name: 'Id', type: 'int' },
+                { name: 'Name', type: 'string' },
                 { name: 'StartTime', type: 'date' },
                 { name: 'EndTime', type: 'date' }
 
@@ -70,7 +71,7 @@
             updaterow: function (rowid, newdata, commit) {
 
 
-                $.post('@Url.Action("Edit")', { id: rowid, entityDto: { Id: newdata.Id, StartTime: newdata.StartTime.getHours() + ":" + newdata.StartTime.getMinutes(), EndTime: newdata.EndTime.getHours() + ":" + newdata.EndTime.getMinutes() } }, function (data) {
+                $.post('@Url.Action("Edit")', { id: rowid, entityDto: { Id: newdata.Id,Name : newdata.Name, StartTime: newdata.StartTime.getHours() + ":" + newdata.StartTime.getMinutes(), EndTime: newdata.EndTime.getHours() + ":" + newdata.EndTime.getMinutes() } }, function (data) {
                     if (data.Success) {
                         commit(true);
                     } else {
@@ -169,6 +170,7 @@
                             });
                 },
                 columns: [
+                     { text: 'Name',width:'25%', datafield: 'Name' },
                     {
                         text: 'Start Time', datafield: 'StartTime', columntype: 'datetimeinput', cellsformat: 'HH:mm', createeditor: function (row, column, editor) {
                             editor.jqxDateTimeInput({
