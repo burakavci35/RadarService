@@ -64,7 +64,7 @@ namespace RadarService.Scheduler.Bussiness
                         }
                     }
 
-                    var currentTimeSpan = DateTime.Now.TimeOfDay.Subtract(new TimeSpan(18,0,0));
+                    var currentTimeSpan = DateTime.Now.TimeOfDay;
 
 
                     if (schedulers.Any(x => x.StartTime.Ticks <= currentTimeSpan.Ticks && currentTimeSpan.Ticks <= x.EndTime.Ticks)
@@ -164,7 +164,14 @@ namespace RadarService.Scheduler.Bussiness
 
             if (expectedResult == null) throw new Exception($"Method : {nameof(LoginDevice)} Error :  Name {loginRequestName} Not Found Error!");
 
-            return expectedResult.Contains(foundDeviceRequest.Request.Response);
+            var isMatch = expectedResult.Contains(foundDeviceRequest.Request.Response);
+
+            if (!isMatch)
+            {
+                _logger.LogError($"MethodName : {nameof(LoginDevice)} Device : {device.Name} : {expectedResult} != {foundDeviceRequest.Request.Response}");
+            }
+
+            return isMatch;
         }
 
         private async Task<bool> ConfigureDevice(HttpClient client, Device device, string configurationName)
@@ -235,65 +242,6 @@ namespace RadarService.Scheduler.Bussiness
 
         }
 
-        //private async Task<string> ExecuteStep(HttpClient client, Request request)
-        //{
-
-        //    try
-        //    {
-        //        if (request.Type == "POST")
-        //        {
-        //            var formData = request.FormParameters.Select(x => new KeyValuePair<string, string>(x.Name, x.Value));
-
-        //            var result = await client.PostAsync(request.Url, new FormUrlEncodedContent(formData));
-
-        //            _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} FormData : {formData}");
-
-        //            if (!result.IsSuccessStatusCode)
-        //            {
-        //                _logger.LogError($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
-
-        //            }
-
-        //            var response = await result.Content.ReadAsStringAsync();
-
-        //            _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
-
-        //            if (request.InverseParent.Any())
-        //                return await ExecuteStep(client, request.InverseParent.First());
-        //            return response;
-
-        //        }
-        //        else
-        //        {
-
-        //            var result = request.Url == "/" ? await client.GetAsync($"/getSystemStatus?_={DateTimeOffset.Now.ToUnixTimeSeconds()}") : await client.GetAsync(request.Url);
-
-        //            _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
-
-        //            if (!result.IsSuccessStatusCode)
-        //            {
-        //                _logger.LogError($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
-
-        //            }
-
-        //            var response = await result.Content.ReadAsStringAsync();
-
-        //            _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
-
-
-        //            if (request.InverseParent.Any())
-        //                return await ExecuteStep(client, request.InverseParent.First());
-        //            return response;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"MethodName : {nameof(ExecuteStep)} Request : {request.Url} Type : {request.Type} Error : {ex.Message} Inner Exception : {ex.InnerException?.Message}");
-
-        //        throw;
-        //    }
-
-        //}
         private async Task<string> ExecuteStep(HttpClient client, Request request)
         {
 
@@ -301,44 +249,103 @@ namespace RadarService.Scheduler.Bussiness
             {
                 if (request.Type == "POST")
                 {
-                    if (request.Url.Equals("/authentication/authenticate_form"))
-                        return "result : true";
-                    if (request.Url.Equals("/maintenance/alignment/set/confirm"))
-                        return "success : true";
+                    var formData = request.FormParameters.Select(x => new KeyValuePair<string, string>(x.Name, x.Value));
 
-                    return "";
+                    var result = await client.PostAsync(request.Url, new FormUrlEncodedContent(formData));
+
+                    _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} FormData : {formData}");
+
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        _logger.LogError($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
+
+                    }
+
+                    var response = await result.Content.ReadAsStringAsync();
+
+                    _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
+
+                    if (request.InverseParent.Any())
+                        return await ExecuteStep(client, request.InverseParent.First());
+                    return response;
+
                 }
                 else
                 {
-                    if (client.BaseAddress.ToString().Contains(".68"))
-                    {
-                        if (request.Url.Equals("/system/enforcement/1"))
-                            MockDevices[1] = "Active";
-                        if (request.Url.Equals("/system/enforcement/0"))
-                            MockDevices[1] = "Passive";
 
-                        return MockDevices[1];
-                    }
-                    if (client.BaseAddress.ToString().Contains(".69"))
-                    {
-                        if (request.Url.Equals("/system/enforcement/1"))
-                            MockDevices[2] = "Active";
-                        if (request.Url.Equals("/system/enforcement/0"))
-                            MockDevices[2] = "Passive";
+                    var result = request.Url == "/" ? await client.GetAsync($"/getSystemStatus?_={DateTimeOffset.Now.ToUnixTimeSeconds()}") : await client.GetAsync(request.Url);
 
-                        return MockDevices[2];
+                    _logger.LogInformation($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
+
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        _logger.LogError($"Request : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode}");
+
                     }
 
-                    return "Unknown";
+                    var response = await result.Content.ReadAsStringAsync();
+
+                    _logger.LogInformation($"Response : {request.Url} Type : {request.Type} StatusCode : {result.StatusCode} ResponseData : {response}");
+
+
+                    if (request.InverseParent.Any())
+                        return await ExecuteStep(client, request.InverseParent.First());
+                    return response;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"MethodName : {nameof(ExecuteStep)} Request : {request.Url} Type : {request.Type} Error : {ex.Message}");
+                _logger.LogError($"MethodName : {nameof(ExecuteStep)} Request : {request.Url} Type : {request.Type} Error : {ex.Message} Inner Exception : {ex.InnerException?.Message}");
 
                 throw;
             }
 
         }
+        //private async Task<string> ExecuteStep(HttpClient client, Request request)
+        //{
+
+        //    try
+        //    {
+        //        if (request.Type == "POST")
+        //        {
+        //            if (request.Url.Equals("/authentication/authenticate_form"))
+        //                return "result : true";
+        //            if (request.Url.Equals("/maintenance/alignment/set/confirm"))
+        //                return "success : true";
+
+        //            return "";
+        //        }
+        //        else
+        //        {
+        //            if (client.BaseAddress.ToString().Contains(".68"))
+        //            {
+        //                if (request.Url.Equals("/system/enforcement/1"))
+        //                    MockDevices[1] = "Active";
+        //                if (request.Url.Equals("/system/enforcement/0"))
+        //                    MockDevices[1] = "Passive";
+
+        //                return MockDevices[1];
+        //            }
+        //            if (client.BaseAddress.ToString().Contains(".69"))
+        //            {
+        //                if (request.Url.Equals("/system/enforcement/1"))
+        //                    MockDevices[2] = "Active";
+        //                if (request.Url.Equals("/system/enforcement/0"))
+        //                    MockDevices[2] = "Passive";
+
+        //                return MockDevices[2];
+        //            }
+
+        //            return "Unknown";
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError($"MethodName : {nameof(ExecuteStep)} Request : {request.Url} Type : {request.Type} Error : {ex.Message}");
+
+        //        throw;
+        //    }
+
+        //}
     }
 }
